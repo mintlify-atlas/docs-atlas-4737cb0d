@@ -1,0 +1,679 @@
+---
+title: RecipientEditTextView
+description: Complete API reference for RecipientEditTextView class
+---
+
+## Overview
+
+`RecipientEditTextView` is an auto-complete text view for use with applications that use the Chips UI for addressing messages to recipients. It extends `MultiAutoCompleteTextView` and provides functionality for creating, managing, and displaying recipient chips.
+
+**Package**: `com.android.ex.chips`
+
+**Extends**: `MultiAutoCompleteTextView`
+
+**Implements**: `OnItemClickListener`, `Callback`, `RecipientAlternatesAdapter.OnCheckedItemChangedListener`, `GestureDetector.OnGestureListener`, `OnDismissListener`, `OnClickListener`, `TextView.OnEditorActionListener`
+
+## Constructor
+
+### RecipientEditTextView(Context, AttributeSet)
+
+```java
+public RecipientEditTextView(Context context, AttributeSet attrs)
+```
+
+Creates a new RecipientEditTextView instance.
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+<ParamField path="attrs" type="AttributeSet" required>
+  The attribute set for styling and configuration
+</ParamField>
+
+## Constants
+
+<ResponseField name="CHIP_LIMIT" type="int">
+  Maximum number of chips to display before showing "more" chip. Default is 2.
+</ResponseField>
+
+<ResponseField name="COMMIT_CHAR_COMMA" type="char">
+  Commit character for creating chips: `,`
+</ResponseField>
+
+<ResponseField name="COMMIT_CHAR_SEMICOLON" type="char">
+  Commit character for creating chips: `;`
+</ResponseField>
+
+<ResponseField name="COMMIT_CHAR_SPACE" type="char">
+  Commit character for creating chips: ` ` (space)
+</ResponseField>
+
+## Configuration Methods
+
+### setAdapter()
+
+```java
+public <T extends ListAdapter & Filterable> void setAdapter(T adapter)
+```
+
+Sets the adapter for auto-complete suggestions. Should be a `BaseRecipientAdapter`.
+
+<ParamField path="adapter" type="ListAdapter & Filterable" required>
+  The adapter providing recipient suggestions
+</ParamField>
+
+### setTokenizer()
+
+```java
+public void setTokenizer(Tokenizer tokenizer)
+```
+
+Sets the tokenizer for parsing recipient text.
+
+<ParamField path="tokenizer" type="Tokenizer" required>
+  The tokenizer to use for parsing text into tokens
+</ParamField>
+
+### setValidator()
+
+```java
+public void setValidator(Validator validator)
+```
+
+Sets the validator for validating recipient entries.
+
+<ParamField path="validator" type="Validator" required>
+  The validator to use for validating recipient text
+</ParamField>
+
+### setOnFocusListShrinkRecipients()
+
+```java
+public void setOnFocusListShrinkRecipients(boolean shrink)
+```
+
+Set whether to shrink the recipients field such that at most one line of recipient chips are shown when the field loses focus.
+
+<ParamField path="shrink" type="boolean" required>
+  If true, the number of displayed recipients will be limited and a "more" chip will be shown when focus is lost
+</ParamField>
+
+### setCopyDialogLayout()
+
+```java
+public void setCopyDialogLayout(@IdRes int layoutResId)
+```
+
+Sets a custom layout for the copy chip dialog.
+
+<ParamField path="layoutResId" type="int" required>
+  Resource ID of the layout to use
+</ParamField>
+
+### setPostSelectedAction()
+
+```java
+public void setPostSelectedAction(ItemSelectedListener listener)
+```
+
+Sets a listener to be notified when an item is selected from the dropdown.
+
+<ParamField path="listener" type="ItemSelectedListener" required>
+  The listener to notify on selection
+</ParamField>
+
+## Recipient Management
+
+### getRecipients()
+
+```java
+public DrawableRecipientChip[] getRecipients()
+```
+
+Returns all recipient chips, including removed spans.
+
+<ResponseField name="return" type="DrawableRecipientChip[]">
+  Array of all recipient chips
+</ResponseField>
+
+### getSortedRecipients()
+
+```java
+public DrawableRecipientChip[] getSortedRecipients()
+```
+
+Returns recipient chips sorted by their position in the text.
+
+<ResponseField name="return" type="DrawableRecipientChip[]">
+  Array of recipient chips sorted by position
+</ResponseField>
+
+### addRecipient()
+
+```java
+public void addRecipient(RecipientEntry entry)
+```
+
+Adds a recipient to the view by simulating user input.
+
+<ParamField path="entry" type="RecipientEntry" required>
+  The recipient entry to add
+</ParamField>
+
+<Note>
+  This method simulates user typing and automatically handles text clearing and sanitization.
+</Note>
+
+### submitItem()
+
+```java
+public void submitItem(String name, String number)
+public void submitItem(String name, String number, Uri imageUri)
+public void submitItem(String name, String number, Uri imageUri, byte[] photoBytes)
+```
+
+Submits a recipient item with the provided information.
+
+<ParamField path="name" type="String" required>
+  Display name of the recipient
+</ParamField>
+
+<ParamField path="number" type="String" required>
+  Email address or phone number
+</ParamField>
+
+<ParamField path="imageUri" type="Uri">
+  Optional URI for the recipient's photo
+</ParamField>
+
+<ParamField path="photoBytes" type="byte[]">
+  Optional photo data as byte array
+</ParamField>
+
+## Text Manipulation
+
+### append()
+
+```java
+public void append(CharSequence text, int start, int end)
+```
+
+Appends text to the view. Commas are excluded as they are added automatically. Automatically creates chips from the appended text.
+
+<ParamField path="text" type="CharSequence" required>
+  The text to append
+</ParamField>
+
+<ParamField path="start" type="int" required>
+  Start index in the text
+</ParamField>
+
+<ParamField path="end" type="int" required>
+  End index in the text
+</ParamField>
+
+### removeMoreChip()
+
+```java
+public void removeMoreChip()
+```
+
+Replaces the "more" chip (if it exists) with all of the recipient chips it had replaced when the RecipientEditTextView gains focus.
+
+## Dropdown Control
+
+### dismissDropDown()
+
+```java
+public void dismissDropDown()
+```
+
+Dismisses the auto-complete dropdown.
+
+### dismissDropDownOnItemSelected()
+
+```java
+public void dismissDropDownOnItemSelected(boolean dismiss)
+```
+
+Controls whether the dropdown is dismissed when an item is selected.
+
+<ParamField path="dismiss" type="boolean" required>
+  If true, dropdown will be dismissed on item selection
+</ParamField>
+
+### showAllContacts()
+
+```java
+public void showAllContacts()
+```
+
+Shows all available contacts in the dropdown.
+
+## Drag and Drop
+
+### enableDrag()
+
+```java
+public void enableDrag()
+```
+
+Enables drag-and-drop functionality for chips.
+
+### onDragEvent()
+
+```java
+public boolean onDragEvent(DragEvent event)
+```
+
+Handles drag events for chips.
+
+<ParamField path="event" type="DragEvent" required>
+  The drag event to handle
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the event was handled
+</ResponseField>
+
+## Validation
+
+### performValidation()
+
+```java
+public void performValidation()
+```
+
+Validation is handled internally by the chips system. This method is overridden to disable the default validation.
+
+### lastCharacterIsCommitCharacter()
+
+```java
+public boolean lastCharacterIsCommitCharacter(CharSequence s)
+```
+
+Checks if the last character in the sequence is a commit character (comma, semicolon, or space).
+
+<ParamField path="s" type="CharSequence" required>
+  The character sequence to check
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the last character is a commit character
+</ResponseField>
+
+### isGeneratedContact()
+
+```java
+public boolean isGeneratedContact(DrawableRecipientChip chip)
+```
+
+Determines if a chip represents a generated contact (not from the contacts database).
+
+<ParamField path="chip" type="DrawableRecipientChip" required>
+  The chip to check
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the chip is a generated contact
+</ResponseField>
+
+## Accessor Methods
+
+### getAdapter()
+
+```java
+public BaseRecipientAdapter getAdapter()
+```
+
+Returns the current adapter.
+
+<ResponseField name="return" type="BaseRecipientAdapter">
+  The current BaseRecipientAdapter
+</ResponseField>
+
+### getChipHeight()
+
+```java
+public float getChipHeight()
+```
+
+Returns the height of chips in pixels.
+
+<ResponseField name="return" type="float">
+  Height of chips in pixels
+</ResponseField>
+
+## Lifecycle Methods
+
+### onSaveInstanceState()
+
+```java
+public Parcelable onSaveInstanceState()
+```
+
+Saves the view state. Clears any selected chip before saving.
+
+<ResponseField name="return" type="Parcelable">
+  The saved state
+</ResponseField>
+
+### onRestoreInstanceState()
+
+```java
+public void onRestoreInstanceState(Parcelable state)
+```
+
+Restores the view state.
+
+<ParamField path="state" type="Parcelable" required>
+  The state to restore
+</ParamField>
+
+### onFocusChanged()
+
+```java
+public void onFocusChanged(boolean hasFocus, int direction, Rect previous)
+```
+
+Called when focus changes. Shrinks the view when focus is lost, expands when focus is gained.
+
+<ParamField path="hasFocus" type="boolean" required>
+  True if the view has focus
+</ParamField>
+
+<ParamField path="direction" type="int" required>
+  Direction of focus change
+</ParamField>
+
+<ParamField path="previous" type="Rect" required>
+  Previous focus rectangle
+</ParamField>
+
+### onSizeChanged()
+
+```java
+public void onSizeChanged(int width, int height, int oldw, int oldh)
+```
+
+Called when the view size changes. Handles pending chips and checks chip widths.
+
+<ParamField path="width" type="int" required>
+  New width
+</ParamField>
+
+<ParamField path="height" type="int" required>
+  New height
+</ParamField>
+
+<ParamField path="oldw" type="int" required>
+  Previous width
+</ParamField>
+
+<ParamField path="oldh" type="int" required>
+  Previous height
+</ParamField>
+
+## Event Handlers
+
+### onItemClick()
+
+```java
+public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+```
+
+Handles clicks on dropdown items to create chips.
+
+<ParamField path="parent" type="AdapterView<?>" required>
+  The adapter view
+</ParamField>
+
+<ParamField path="view" type="View" required>
+  The clicked view
+</ParamField>
+
+<ParamField path="position" type="int" required>
+  Position of the clicked item
+</ParamField>
+
+<ParamField path="id" type="long" required>
+  Row ID of the clicked item
+</ParamField>
+
+### onClick()
+
+```java
+public void onClick(DrawableRecipientChip chip, int offset, float x, float y)
+```
+
+Handles click events on a chip. If the chip is selected and the click is in the delete area, removes the chip. Otherwise, unselects it.
+
+<ParamField path="chip" type="DrawableRecipientChip" required>
+  The chip that was clicked
+</ParamField>
+
+<ParamField path="offset" type="int" required>
+  The text offset of the click
+</ParamField>
+
+<ParamField path="x" type="float" required>
+  X coordinate of the click
+</ParamField>
+
+<ParamField path="y" type="float" required>
+  Y coordinate of the click
+</ParamField>
+
+### onTouchEvent()
+
+```java
+public boolean onTouchEvent(MotionEvent event)
+```
+
+Monitors touch events to handle chip selection and interaction.
+
+<ParamField path="event" type="MotionEvent" required>
+  The motion event
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the event was handled
+</ResponseField>
+
+### onKeyDown()
+
+```java
+public boolean onKeyDown(int keyCode, KeyEvent event)
+```
+
+Handles key down events. Delegates delete key events to selected chips.
+
+<ParamField path="keyCode" type="int" required>
+  The key code
+</ParamField>
+
+<ParamField path="event" type="KeyEvent" required>
+  The key event
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the event was handled
+</ResponseField>
+
+### onKeyUp()
+
+```java
+public boolean onKeyUp(int keyCode, KeyEvent event)
+```
+
+Handles key up events. Processes TAB key for committing chips.
+
+<ParamField path="keyCode" type="int" required>
+  The key code
+</ParamField>
+
+<ParamField path="event" type="KeyEvent" required>
+  The key event
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the event was handled
+</ResponseField>
+
+### onKeyPreIme()
+
+```java
+public boolean onKeyPreIme(int keyCode, KeyEvent event)
+```
+
+Handles key events before the IME. Dismisses selected chips when the back key is pressed.
+
+<ParamField path="keyCode" type="int" required>
+  The key code
+</ParamField>
+
+<ParamField path="event" type="KeyEvent" required>
+  The key event
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the event was handled
+</ResponseField>
+
+### onEditorAction()
+
+```java
+public boolean onEditorAction(TextView view, int action, KeyEvent keyEvent)
+```
+
+Handles editor actions, particularly the DONE action to commit chips.
+
+<ParamField path="view" type="TextView" required>
+  The editor view
+</ParamField>
+
+<ParamField path="action" type="int" required>
+  The action code
+</ParamField>
+
+<ParamField path="keyEvent" type="KeyEvent" required>
+  The key event
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the action was handled
+</ResponseField>
+
+## Text Watchers
+
+### removeTextChangedListener()
+
+```java
+public void removeTextChangedListener(TextWatcher watcher)
+```
+
+Removes a text changed listener.
+
+<ParamField path="watcher" type="TextWatcher" required>
+  The listener to remove
+</ParamField>
+
+## Interfaces
+
+### ItemSelectedListener
+
+```java
+public interface ItemSelectedListener {
+    void onItemSelected();
+}
+```
+
+Listener interface for item selection events.
+
+## XML Attributes
+
+The following custom attributes can be set in XML:
+
+<ParamField path="chipBackground" type="drawable">
+  Background drawable for normal chips
+</ParamField>
+
+<ParamField path="chipBackgroundPressed" type="drawable">
+  Background drawable for selected chips
+</ParamField>
+
+<ParamField path="chipDelete" type="drawable">
+  Drawable for the delete icon
+</ParamField>
+
+<ParamField path="invalidChipBackground" type="drawable">
+  Background drawable for invalid chips
+</ParamField>
+
+<ParamField path="chipHeight" type="dimension">
+  Height of chips
+</ParamField>
+
+<ParamField path="chipFontSize" type="dimension">
+  Font size for chip text
+</ParamField>
+
+<ParamField path="chipPadding" type="dimension">
+  Internal padding for chips
+</ParamField>
+
+<ParamField path="avatarPosition" type="enum">
+  Position of avatar in chip (0 = end, 1 = start)
+</ParamField>
+
+<ParamField path="imageSpanAlignment" type="enum">
+  Alignment of chip image span (0 = bottom, 1 = baseline)
+</ParamField>
+
+<ParamField path="disableDelete" type="boolean">
+  If true, disables chip deletion
+</ParamField>
+
+## Usage Example
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/recipient_edit_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:chipHeight="32dp"
+    app:chipFontSize="14sp" />
+```
+
+```java
+RecipientEditTextView recipientEdit = findViewById(R.id.recipient_edit_text);
+
+// Set up adapter
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(this);
+recipientEdit.setAdapter(adapter);
+
+// Set tokenizer
+recipientEdit.setTokenizer(new Rfc822Tokenizer());
+
+// Add a recipient programmatically
+RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
+    "John Doe",
+    "john@example.com",
+    true
+);
+recipientEdit.addRecipient(entry);
+
+// Get all recipients
+DrawableRecipientChip[] chips = recipientEdit.getSortedRecipients();
+for (DrawableRecipientChip chip : chips) {
+    String destination = chip.getEntry().getDestination();
+    // Process recipient
+}
+```
+
+## See Also
+
+- [BaseRecipientAdapter](/api/base-recipient-adapter) - Adapter for recipient suggestions
+- [RecipientEntry](/api/recipient-entry) - Data model for recipients
+- [DrawableRecipientChip](/api/drawable-recipient-chip) - Interface for chip display

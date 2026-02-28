@@ -1,0 +1,570 @@
+---
+title: BaseRecipientAdapter
+description: Complete API reference for BaseRecipientAdapter class
+---
+
+## Overview
+
+`BaseRecipientAdapter` is an adapter for showing a recipient list in auto-complete suggestions. It queries the contacts provider and provides filtered results for email addresses or phone numbers.
+
+**Package**: `com.android.ex.chips`
+
+**Extends**: `BaseAdapter`
+
+**Implements**: `Filterable`, `AccountSpecifier`
+
+## Constants
+
+### Query Types
+
+<ResponseField name="QUERY_TYPE_EMAIL" type="int">
+  Query type for email addresses (value: 0)
+</ResponseField>
+
+<ResponseField name="QUERY_TYPE_PHONE" type="int">
+  Query type for phone numbers (value: 1)
+</ResponseField>
+
+### Configuration
+
+<ResponseField name="DEFAULT_PREFERRED_MAX_RESULT_COUNT" type="int">
+  Default maximum number of results to retrieve (value: 10)
+</ResponseField>
+
+<ResponseField name="ALLOWANCE_FOR_DUPLICATES" type="int">
+  Extra entries requested to allow for duplicates (value: 5)
+</ResponseField>
+
+<ResponseField name="PHOTO_CACHE_SIZE" type="int">
+  Number of photos cached in the adapter (value: 200)
+</ResponseField>
+
+## Constructors
+
+### BaseRecipientAdapter(Context)
+
+```java
+public BaseRecipientAdapter(Context context)
+```
+
+Creates an adapter for email queries with default max results.
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+### BaseRecipientAdapter(Context, int)
+
+```java
+public BaseRecipientAdapter(Context context, int preferredMaxResultCount)
+```
+
+Creates an adapter for email queries with specified max results.
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+<ParamField path="preferredMaxResultCount" type="int" required>
+  Maximum number of results to retrieve
+</ParamField>
+
+### BaseRecipientAdapter(int, Context)
+
+```java
+public BaseRecipientAdapter(int queryMode, Context context)
+```
+
+Creates an adapter with specified query mode and default max results.
+
+<ParamField path="queryMode" type="int" required>
+  Query type (QUERY_TYPE_EMAIL or QUERY_TYPE_PHONE)
+</ParamField>
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+### BaseRecipientAdapter(int, Context, int)
+
+```java
+public BaseRecipientAdapter(int queryMode, Context context, int preferredMaxResultCount)
+```
+
+Creates an adapter with specified query mode and max results.
+
+<ParamField path="queryMode" type="int" required>
+  Query type (QUERY_TYPE_EMAIL or QUERY_TYPE_PHONE)
+</ParamField>
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+<ParamField path="preferredMaxResultCount" type="int" required>
+  Maximum number of results to retrieve
+</ParamField>
+
+### BaseRecipientAdapter(Context, int, int)
+
+```java
+public BaseRecipientAdapter(Context context, int preferredMaxResultCount, int queryMode)
+```
+
+Creates an adapter with all parameters specified.
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+<ParamField path="preferredMaxResultCount" type="int" required>
+  Maximum number of results to retrieve
+</ParamField>
+
+<ParamField path="queryMode" type="int" required>
+  Query type (QUERY_TYPE_EMAIL or QUERY_TYPE_PHONE)
+</ParamField>
+
+## Configuration Methods
+
+### setAccount()
+
+```java
+public void setAccount(Account account)
+```
+
+Set the account when known. Causes the search to prioritize contacts from that account.
+
+<ParamField path="account" type="Account" required>
+  The account to prioritize in search results
+</ParamField>
+
+### setDropdownChipLayouter()
+
+```java
+public void setDropdownChipLayouter(DropdownChipLayouter dropdownChipLayouter)
+```
+
+Sets the layouter for dropdown chip views.
+
+<ParamField path="dropdownChipLayouter" type="DropdownChipLayouter" required>
+  The layouter to use for chip display in dropdown
+</ParamField>
+
+### setShowMobileOnly()
+
+```java
+public void setShowMobileOnly(boolean showMobileOnly)
+```
+
+For phone queries, sets whether to show only mobile numbers.
+
+<ParamField path="showMobileOnly" type="boolean" required>
+  If true, only mobile phone numbers will be shown
+</ParamField>
+
+### registerUpdateObserver()
+
+```java
+public void registerUpdateObserver(EntriesUpdatedObserver observer)
+```
+
+Registers an observer to be notified when entries are updated.
+
+<ParamField path="observer" type="EntriesUpdatedObserver" required>
+  The observer to notify on entry updates
+</ParamField>
+
+## Query Methods
+
+### getFilter()
+
+```java
+public Filter getFilter()
+```
+
+Returns the filter for auto-complete queries.
+
+<ResponseField name="return" type="Filter">
+  The filter that performs recipient queries
+</ResponseField>
+
+<Note>
+  This method is called automatically by AutoCompleteTextView to prepare the auto-complete list.
+</Note>
+
+### getMatchingRecipients()
+
+```java
+public Map<String, RecipientEntry> getMatchingRecipients(Set<String> addresses)
+```
+
+Extension point that allows additional sources of contacts to be considered as matching recipients.
+
+<ParamField path="addresses" type="Set<String>" required>
+  A set of addresses to be matched
+</ParamField>
+
+<ResponseField name="return" type="Map<String, RecipientEntry>">
+  A map of matching entries or null if none found
+</ResponseField>
+
+## Accessor Methods
+
+### getContext()
+
+```java
+public Context getContext()
+```
+
+Returns the application context.
+
+<ResponseField name="return" type="Context">
+  The application context
+</ResponseField>
+
+### getQueryType()
+
+```java
+public int getQueryType()
+```
+
+Returns the current query type.
+
+<ResponseField name="return" type="int">
+  QUERY_TYPE_EMAIL or QUERY_TYPE_PHONE
+</ResponseField>
+
+### getAccount()
+
+```java
+public Account getAccount()
+```
+
+Returns the current account.
+
+<ResponseField name="return" type="Account">
+  The current account or null if not set
+</ResponseField>
+
+### getDropdownChipLayouter()
+
+```java
+public DropdownChipLayouter getDropdownChipLayouter()
+```
+
+Returns the current dropdown chip layouter.
+
+<ResponseField name="return" type="DropdownChipLayouter">
+  The current chip layouter
+</ResponseField>
+
+### isShowMobileOnly()
+
+```java
+public boolean isShowMobileOnly()
+```
+
+Returns whether only mobile numbers are shown for phone queries.
+
+<ResponseField name="return" type="boolean">
+  True if only mobile numbers are shown
+</ResponseField>
+
+## BaseAdapter Implementation
+
+### getCount()
+
+```java
+public int getCount()
+```
+
+Returns the number of entries in the adapter.
+
+<ResponseField name="return" type="int">
+  Number of recipient entries
+</ResponseField>
+
+### getItem()
+
+```java
+public RecipientEntry getItem(int position)
+```
+
+Returns the recipient entry at the specified position.
+
+<ParamField path="position" type="int" required>
+  Position of the item
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  The recipient entry at the position
+</ResponseField>
+
+### getItemId()
+
+```java
+public long getItemId(int position)
+```
+
+Returns the item ID (same as position).
+
+<ParamField path="position" type="int" required>
+  Position of the item
+</ParamField>
+
+<ResponseField name="return" type="long">
+  The item ID
+</ResponseField>
+
+### getViewTypeCount()
+
+```java
+public int getViewTypeCount()
+```
+
+Returns the number of view types.
+
+<ResponseField name="return" type="int">
+  Number of view types (RecipientEntry.ENTRY_TYPE_SIZE)
+</ResponseField>
+
+### getItemViewType()
+
+```java
+public int getItemViewType(int position)
+```
+
+Returns the view type for the item at the position.
+
+<ParamField path="position" type="int" required>
+  Position of the item
+</ParamField>
+
+<ResponseField name="return" type="int">
+  The entry type for the item
+</ResponseField>
+
+### isEnabled()
+
+```java
+public boolean isEnabled(int position)
+```
+
+Returns whether the item at the position is selectable.
+
+<ParamField path="position" type="int" required>
+  Position of the item
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the item is selectable
+</ResponseField>
+
+### getView()
+
+```java
+public View getView(int position, View convertView, ViewGroup parent)
+```
+
+Creates or updates a view for the item at the position.
+
+<ParamField path="position" type="int" required>
+  Position of the item
+</ParamField>
+
+<ParamField path="convertView" type="View">
+  Recycled view to reuse
+</ParamField>
+
+<ParamField path="parent" type="ViewGroup" required>
+  Parent view group
+</ParamField>
+
+<ResponseField name="return" type="View">
+  The view for the item
+</ResponseField>
+
+## Static Utility Methods
+
+### setupOtherDirectories()
+
+```java
+public static List<DirectorySearchParams> setupOtherDirectories(
+    Context context,
+    Cursor directoryCursor,
+    Account account
+)
+```
+
+Sets up directory search parameters for searching other directories beyond local contacts.
+
+<ParamField path="context" type="Context" required>
+  The application context
+</ParamField>
+
+<ParamField path="directoryCursor" type="Cursor" required>
+  Cursor containing directory information
+</ParamField>
+
+<ParamField path="account" type="Account">
+  Account to prioritize
+</ParamField>
+
+<ResponseField name="return" type="List<DirectorySearchParams>">
+  List of directory search parameters
+</ResponseField>
+
+### tryFetchPhoto()
+
+```java
+public static void tryFetchPhoto(
+    RecipientEntry entry,
+    ContentResolver contentResolver,
+    BaseAdapter adapter,
+    boolean forceLoad,
+    int position
+)
+```
+
+Attempts to fetch a photo for a recipient entry.
+
+<ParamField path="entry" type="RecipientEntry" required>
+  The recipient entry
+</ParamField>
+
+<ParamField path="contentResolver" type="ContentResolver" required>
+  Content resolver for accessing contact photos
+</ParamField>
+
+<ParamField path="adapter" type="BaseAdapter" required>
+  The adapter to notify when photo is loaded
+</ParamField>
+
+<ParamField path="forceLoad" type="boolean" required>
+  If true, loads photo regardless of position
+</ParamField>
+
+<ParamField path="position" type="int" required>
+  Position of the entry (photos only loaded for positions ≤ 20 unless forceLoad is true)
+</ParamField>
+
+### fetchPhoto()
+
+```java
+protected static void fetchPhoto(
+    RecipientEntry entry,
+    Uri photoThumbnailUri,
+    ContentResolver contentResolver
+)
+```
+
+Synchronously fetches a photo for a recipient entry.
+
+<ParamField path="entry" type="RecipientEntry" required>
+  The recipient entry
+</ParamField>
+
+<ParamField path="photoThumbnailUri" type="Uri" required>
+  URI of the photo thumbnail
+</ParamField>
+
+<ParamField path="contentResolver" type="ContentResolver" required>
+  Content resolver for accessing contact photos
+</ParamField>
+
+## Inner Classes
+
+### DirectorySearchParams
+
+Model object for a directory row.
+
+<ResponseField name="directoryId" type="long">
+  ID of the directory
+</ResponseField>
+
+<ResponseField name="directoryType" type="String">
+  Type of the directory
+</ResponseField>
+
+<ResponseField name="displayName" type="String">
+  Display name of the directory
+</ResponseField>
+
+<ResponseField name="accountName" type="String">
+  Account name associated with directory
+</ResponseField>
+
+<ResponseField name="accountType" type="String">
+  Account type associated with directory
+</ResponseField>
+
+<ResponseField name="constraint" type="CharSequence">
+  Search constraint
+</ResponseField>
+
+<ResponseField name="filter" type="DirectoryFilter">
+  Filter for the directory
+</ResponseField>
+
+## Interfaces
+
+### EntriesUpdatedObserver
+
+```java
+public interface EntriesUpdatedObserver {
+    void onChanged(List<RecipientEntry> entries);
+}
+```
+
+Observer interface for entry updates.
+
+<ParamField path="entries" type="List<RecipientEntry>" required>
+  The updated list of entries
+</ParamField>
+
+## Usage Example
+
+```java
+// Create adapter for email queries
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(context);
+
+// Or create adapter for phone queries
+BaseRecipientAdapter phoneAdapter = new BaseRecipientAdapter(
+    BaseRecipientAdapter.QUERY_TYPE_PHONE,
+    context,
+    20  // max results
+);
+
+// Set account to prioritize
+Account account = new Account("user@example.com", "com.google");
+adapter.setAccount(account);
+
+// For phone adapter, show only mobile numbers
+phoneAdapter.setShowMobileOnly(true);
+
+// Register observer for updates
+adapter.registerUpdateObserver(new BaseRecipientAdapter.EntriesUpdatedObserver() {
+    @Override
+    public void onChanged(List<RecipientEntry> entries) {
+        // Handle entry updates
+        Log.d("Adapter", "Received " + entries.size() + " entries");
+    }
+});
+
+// Set up chip layouter
+DropdownChipLayouter layouter = new DropdownChipLayouter(
+    LayoutInflater.from(context),
+    context
+);
+adapter.setDropdownChipLayouter(layouter);
+
+// Use with RecipientEditTextView
+RecipientEditTextView recipientEdit = findViewById(R.id.recipient_edit_text);
+recipientEdit.setAdapter(adapter);
+```
+
+## See Also
+
+- [RecipientEditTextView](/api/recipient-edit-text-view) - Main view that uses this adapter
+- [RecipientEntry](/api/recipient-entry) - Data model for recipients

@@ -1,0 +1,627 @@
+---
+title: RecipientEntry
+description: Complete API reference for RecipientEntry class
+---
+
+## Overview
+
+`RecipientEntry` represents one entry inside the recipient auto-complete list. It contains all the information about a recipient, including display name, destination (email or phone), contact ID, and photo data.
+
+**Package**: `com.android.ex.chips`
+
+## Constants
+
+### Contact Types
+
+<ResponseField name="INVALID_CONTACT" type="int">
+  Indicates an invalid contact ID (value: -1)
+</ResponseField>
+
+<ResponseField name="GENERATED_CONTACT" type="int">
+  Indicates a contact generated from external source, not a real contact (value: -2)
+</ResponseField>
+
+<ResponseField name="INVALID_DESTINATION_TYPE" type="int">
+  Invalid destination type that shouldn't be used for display (value: -1)
+</ResponseField>
+
+### Entry Types
+
+<ResponseField name="ENTRY_TYPE_PERSON" type="int">
+  Entry type for person entries (value: 0)
+</ResponseField>
+
+<ResponseField name="ENTRY_TYPE_SIZE" type="int">
+  Total number of entry types (value: 1)
+</ResponseField>
+
+## Static Factory Methods
+
+### constructFakeEntry()
+
+```java
+public static RecipientEntry constructFakeEntry(String address, boolean isValid)
+```
+
+Constructs a RecipientEntry from just an address that has been entered. This address has not been resolved to a contact and therefore does not have a contact ID or photo.
+
+<ParamField path="address" type="String" required>
+  The email address or phone number
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the address is valid
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new fake recipient entry
+</ResponseField>
+
+### constructFakePhoneEntry()
+
+```java
+public static RecipientEntry constructFakePhoneEntry(String phoneNumber, boolean isValid)
+```
+
+Constructs a RecipientEntry from just a phone number.
+
+<ParamField path="phoneNumber" type="String" required>
+  The phone number
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the phone number is valid
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new fake phone entry
+</ResponseField>
+
+### constructGeneratedEntry()
+
+```java
+public static RecipientEntry constructGeneratedEntry(
+    String display,
+    String address,
+    boolean isValid
+)
+```
+
+Constructs a RecipientEntry from an address with an associated display name. This address has not been resolved to a contact.
+
+<ParamField path="display" type="String" required>
+  The display name
+</ParamField>
+
+<ParamField path="address" type="String" required>
+  The email address or phone number
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the entry is valid
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new generated entry
+</ResponseField>
+
+### constructGeneratedEntry() with Photo URI
+
+```java
+public static RecipientEntry constructGeneratedEntry(
+    String display,
+    String address,
+    Uri photoThumbnailUri,
+    boolean isValid
+)
+```
+
+Constructs a generated entry with a photo URI.
+
+<ParamField path="display" type="String" required>
+  The display name
+</ParamField>
+
+<ParamField path="address" type="String" required>
+  The email address or phone number
+</ParamField>
+
+<ParamField path="photoThumbnailUri" type="Uri" required>
+  URI for the contact's photo
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the entry is valid
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new generated entry with photo URI
+</ResponseField>
+
+### constructGeneratedEntry() with Photo Bytes
+
+```java
+public static RecipientEntry constructGeneratedEntry(
+    String display,
+    String address,
+    Uri photoThumbnailUri,
+    byte[] photoBytes,
+    boolean isValid
+)
+```
+
+Constructs a generated entry with photo data.
+
+<ParamField path="display" type="String" required>
+  The display name
+</ParamField>
+
+<ParamField path="address" type="String" required>
+  The email address or phone number
+</ParamField>
+
+<ParamField path="photoThumbnailUri" type="Uri" required>
+  URI for the contact's photo
+</ParamField>
+
+<ParamField path="photoBytes" type="byte[]" required>
+  Photo data as byte array
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the entry is valid
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new generated entry with photo data
+</ResponseField>
+
+### constructTopLevelEntry() with Uri
+
+```java
+public static RecipientEntry constructTopLevelEntry(
+    String displayName,
+    int displayNameSource,
+    String destination,
+    int destinationType,
+    String destinationLabel,
+    long contactId,
+    Long directoryId,
+    long dataId,
+    Uri photoThumbnailUri,
+    boolean isValid,
+    String lookupKey
+)
+```
+
+Constructs a top-level entry from contact data with a photo URI.
+
+<ParamField path="displayName" type="String" required>
+  The contact's display name
+</ParamField>
+
+<ParamField path="displayNameSource" type="int" required>
+  Source of the display name (from DisplayNameSources)
+</ParamField>
+
+<ParamField path="destination" type="String" required>
+  Email address or phone number
+</ParamField>
+
+<ParamField path="destinationType" type="int" required>
+  Type of destination (e.g., Email.TYPE_HOME)
+</ParamField>
+
+<ParamField path="destinationLabel" type="String">
+  Custom label for the destination
+</ParamField>
+
+<ParamField path="contactId" type="long" required>
+  Contact ID from contacts database
+</ParamField>
+
+<ParamField path="directoryId" type="Long">
+  Directory ID if from a directory
+</ParamField>
+
+<ParamField path="dataId" type="long" required>
+  Data row ID
+</ParamField>
+
+<ParamField path="photoThumbnailUri" type="Uri">
+  URI for photo thumbnail
+</ParamField>
+
+<ParamField path="isValid" type="boolean" required>
+  Whether the entry is valid
+</ParamField>
+
+<ParamField path="lookupKey" type="String">
+  Contact lookup key
+</ParamField>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new top-level contact entry
+</ResponseField>
+
+### constructTopLevelEntry() with String URI
+
+```java
+public static RecipientEntry constructTopLevelEntry(
+    String displayName,
+    int displayNameSource,
+    String destination,
+    int destinationType,
+    String destinationLabel,
+    long contactId,
+    Long directoryId,
+    long dataId,
+    String thumbnailUriAsString,
+    boolean isValid,
+    String lookupKey
+)
+```
+
+Constructs a top-level entry with photo URI as string.
+
+<ParamField path="thumbnailUriAsString" type="String">
+  Photo URI as string
+</ParamField>
+
+<Note>
+  Other parameters are the same as the Uri variant above.
+</Note>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new top-level contact entry
+</ResponseField>
+
+### constructSecondLevelEntry()
+
+```java
+public static RecipientEntry constructSecondLevelEntry(
+    String displayName,
+    int displayNameSource,
+    String destination,
+    int destinationType,
+    String destinationLabel,
+    long contactId,
+    Long directoryId,
+    long dataId,
+    String thumbnailUriAsString,
+    boolean isValid,
+    String lookupKey
+)
+```
+
+Constructs a second-level entry (alternative addresses for the same contact).
+
+<ParamField path="displayName" type="String" required>
+  The contact's display name
+</ParamField>
+
+<Note>
+  Parameters are the same as constructTopLevelEntry(). Second-level entries won't show a photo or display name in the UI.
+</Note>
+
+<ResponseField name="return" type="RecipientEntry">
+  A new second-level contact entry
+</ResponseField>
+
+## Static Utility Methods
+
+### isCreatedRecipient()
+
+```java
+public static boolean isCreatedRecipient(long id)
+```
+
+Determines if this was a RecipientEntry created from recipient info or an entry from contacts.
+
+<ParamField path="id" type="long" required>
+  The contact ID to check
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if the ID is INVALID_CONTACT or GENERATED_CONTACT
+</ResponseField>
+
+## Instance Methods
+
+### getEntryType()
+
+```java
+public int getEntryType()
+```
+
+Returns the entry type.
+
+<ResponseField name="return" type="int">
+  The entry type (ENTRY_TYPE_PERSON)
+</ResponseField>
+
+### getDisplayName()
+
+```java
+public String getDisplayName()
+```
+
+Returns the display name for this entry.
+
+<ResponseField name="return" type="String">
+  The display name
+</ResponseField>
+
+### getDestination()
+
+```java
+public String getDestination()
+```
+
+Returns the destination (email address or phone number).
+
+<ResponseField name="return" type="String">
+  The destination address or phone number
+</ResponseField>
+
+### getDestinationType()
+
+```java
+public int getDestinationType()
+```
+
+Returns the type of destination.
+
+<ResponseField name="return" type="int">
+  The destination type (e.g., Email.TYPE_HOME)
+</ResponseField>
+
+### getDestinationLabel()
+
+```java
+public String getDestinationLabel()
+```
+
+Returns the label for the destination (used when type is TYPE_CUSTOM).
+
+<ResponseField name="return" type="String">
+  The destination label or null
+</ResponseField>
+
+### getContactId()
+
+```java
+public long getContactId()
+```
+
+Returns the contact ID.
+
+<ResponseField name="return" type="long">
+  The contact ID or INVALID_CONTACT/GENERATED_CONTACT
+</ResponseField>
+
+### getDirectoryId()
+
+```java
+public Long getDirectoryId()
+```
+
+Returns the directory ID.
+
+<ResponseField name="return" type="Long">
+  The directory ID or null if not from a directory
+</ResponseField>
+
+### getDataId()
+
+```java
+public long getDataId()
+```
+
+Returns the data row ID.
+
+<ResponseField name="return" type="long">
+  The data ID
+</ResponseField>
+
+### isFirstLevel()
+
+```java
+public boolean isFirstLevel()
+```
+
+Returns whether this is a first-level entry (should show photo and display name).
+
+<ResponseField name="return" type="boolean">
+  True if this is a first-level entry
+</ResponseField>
+
+### getPhotoThumbnailUri()
+
+```java
+public Uri getPhotoThumbnailUri()
+```
+
+Returns the URI for the photo thumbnail.
+
+<ResponseField name="return" type="Uri">
+  The photo URI or null
+</ResponseField>
+
+### getPhotoBytes()
+
+```java
+public synchronized byte[] getPhotoBytes()
+```
+
+Returns the photo data as a byte array. This can be called outside the main Looper thread.
+
+<ResponseField name="return" type="byte[]">
+  The photo bytes or null
+</ResponseField>
+
+### setPhotoBytes()
+
+```java
+public synchronized void setPhotoBytes(byte[] photoBytes)
+```
+
+Sets the photo data. Can be called outside the main Looper thread.
+
+<ParamField path="photoBytes" type="byte[]" required>
+  The photo data to set
+</ParamField>
+
+### isValid()
+
+```java
+public boolean isValid()
+```
+
+Returns whether this entry is valid.
+
+<ResponseField name="return" type="boolean">
+  True if the entry is valid
+</ResponseField>
+
+### isSeparator()
+
+```java
+public boolean isSeparator()
+```
+
+Returns whether this entry is a separator.
+
+<ResponseField name="return" type="boolean">
+  True if this is a separator entry
+</ResponseField>
+
+### isSelectable()
+
+```java
+public boolean isSelectable()
+```
+
+Returns whether this entry is selectable.
+
+<ResponseField name="return" type="boolean">
+  True if the entry type is ENTRY_TYPE_PERSON
+</ResponseField>
+
+### getLookupKey()
+
+```java
+public String getLookupKey()
+```
+
+Returns the contact lookup key.
+
+<ResponseField name="return" type="String">
+  The lookup key or null
+</ResponseField>
+
+### toString()
+
+```java
+public String toString()
+```
+
+Returns a string representation of this entry.
+
+<ResponseField name="return" type="String">
+  String in format "displayName &lt;destination&gt;, isValid=true/false"
+</ResponseField>
+
+## Usage Examples
+
+### Creating a Simple Email Entry
+
+```java
+// Create entry from just an email address
+RecipientEntry entry = RecipientEntry.constructFakeEntry(
+    "user@example.com",
+    true
+);
+```
+
+### Creating an Entry with Name and Email
+
+```java
+// Create entry with display name and email
+RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
+    "John Doe",
+    "john@example.com",
+    true
+);
+```
+
+### Creating an Entry with Photo
+
+```java
+// Create entry with name, email, and photo
+Uri photoUri = Uri.parse("content://contacts/photo/123");
+RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
+    "Jane Smith",
+    "jane@example.com",
+    photoUri,
+    true
+);
+```
+
+### Creating from Contact Data
+
+```java
+// Create entry from contact database
+RecipientEntry entry = RecipientEntry.constructTopLevelEntry(
+    "John Doe",                          // display name
+    DisplayNameSources.STRUCTURED_NAME,  // name source
+    "john@example.com",                  // destination
+    Email.TYPE_WORK,                     // type
+    null,                                // label
+    123L,                                // contact ID
+    null,                                // directory ID
+    456L,                                // data ID
+    "content://contacts/photo/123",      // photo URI
+    true,                                // is valid
+    "lookup_key_123"                     // lookup key
+);
+```
+
+### Working with Entry Data
+
+```java
+RecipientEntry entry = getRecipientEntry();
+
+// Get basic information
+String name = entry.getDisplayName();
+String email = entry.getDestination();
+boolean valid = entry.isValid();
+
+// Check entry type
+if (RecipientEntry.isCreatedRecipient(entry.getContactId())) {
+    // This is a user-entered recipient, not from contacts
+    Log.d("Entry", "User-generated entry");
+}
+
+// Get photo if available
+Uri photoUri = entry.getPhotoThumbnailUri();
+if (photoUri != null) {
+    byte[] photoBytes = entry.getPhotoBytes();
+    if (photoBytes != null) {
+        Bitmap photo = BitmapFactory.decodeByteArray(
+            photoBytes, 0, photoBytes.length
+        );
+    }
+}
+
+// Get contact details
+long contactId = entry.getContactId();
+long dataId = entry.getDataId();
+String lookupKey = entry.getLookupKey();
+```
+
+## See Also
+
+- [RecipientEditTextView](/api/recipient-edit-text-view) - View that uses recipient entries
+- [BaseRecipientAdapter](/api/base-recipient-adapter) - Adapter that provides recipient entries
+- [DrawableRecipientChip](/api/drawable-recipient-chip) - Visual representation of entries

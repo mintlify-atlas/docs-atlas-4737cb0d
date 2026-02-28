@@ -1,0 +1,167 @@
+---
+title: Phone Autocomplete Setup
+description: Learn how to set up phone number autocomplete with the Android Chips library to query and display phone contacts
+---
+
+This guide shows you how to set up phone number autocomplete functionality using the Android Chips library. Phone autocomplete allows users to easily select phone contacts from their device's contact list.
+
+## Overview
+
+The phone autocomplete setup uses:
+- `RecipientEditTextView` - The main text input widget
+- `MultiAutoCompleteTextView.CommaTokenizer` - Tokenizer for comma-separated values
+- `BaseRecipientAdapter` with `QUERY_TYPE_PHONE` - Adapter that queries phone contacts
+
+<Steps>
+
+### Add RecipientEditTextView to Your Layout
+
+First, add the `RecipientEditTextView` widget to your XML layout:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/phone_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Phone numbers"
+    android:minHeight="58dp" />
+```
+
+### Set Up the Tokenizer
+
+In your Activity or Fragment, get a reference to the view and set the `CommaTokenizer`:
+
+```java
+final RecipientEditTextView phoneRetv =
+        (RecipientEditTextView) findViewById(R.id.phone_retv);
+phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+```
+
+<Note>
+For phone numbers, use `CommaTokenizer` instead of `Rfc822Tokenizer`. The `CommaTokenizer` treats commas as separators, which is more appropriate for phone number lists.
+</Note>
+
+### Create the Adapter with QUERY_TYPE_PHONE
+
+Create a `BaseRecipientAdapter` with `QUERY_TYPE_PHONE` to query phone contacts:
+
+```java
+BaseRecipientAdapter baseRecipientAdapter = 
+    new BaseRecipientAdapter(BaseRecipientAdapter.QUERY_TYPE_PHONE, this);
+```
+
+The `QUERY_TYPE_PHONE` constant (value: `1`) tells the adapter to query phone numbers from the Contacts Provider instead of email addresses.
+
+### Configure Mobile-Only Filtering (Optional)
+
+You can configure whether to query all phone numbers or only mobile numbers:
+
+```java
+// Queries for all phone numbers (mobile, home, work, etc.)
+baseRecipientAdapter.setShowMobileOnly(false);
+
+// OR: Query only mobile phone numbers
+baseRecipientAdapter.setShowMobileOnly(true);
+```
+
+<Info>
+- `setShowMobileOnly(false)` - Returns all phone numbers including mobile, home, work, and other types
+- `setShowMobileOnly(true)` - Returns only phone numbers marked as "mobile" in contacts
+</Info>
+
+### Set the Adapter
+
+Attach the adapter to your `RecipientEditTextView`:
+
+```java
+phoneRetv.setAdapter(baseRecipientAdapter);
+```
+
+### Complete Setup Example
+
+Here's the complete setup code from the sample app:
+
+```java
+// creates an autocomplete for phone number contacts
+final RecipientEditTextView phoneRetv =
+        (RecipientEditTextView) findViewById(R.id.phone_retv);
+phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+BaseRecipientAdapter baseRecipientAdapter = 
+    new BaseRecipientAdapter(BaseRecipientAdapter.QUERY_TYPE_PHONE, this);
+
+// Queries for all phone numbers. Includes phone numbers marked as "mobile" and "others".
+// If set as true, baseRecipientAdapter will query only for phone numbers marked as "mobile".
+baseRecipientAdapter.setShowMobileOnly(false);
+
+phoneRetv.setAdapter(baseRecipientAdapter);
+```
+
+</Steps>
+
+## How Phone Querying Works
+
+When you use `BaseRecipientAdapter` with `QUERY_TYPE_PHONE`:
+
+1. **Query Type**: Uses `QUERY_TYPE_PHONE` (value: `1`)
+2. **Data Source**: Queries phone numbers from the Android Contacts Provider
+3. **Filtering**: Can be filtered to show only mobile numbers via `setShowMobileOnly()`
+4. **Results**: Returns contacts with phone numbers that match the user's input
+5. **Display**: Shows contact name, phone number, and photo (if available)
+
+## Permissions Required
+
+Make sure to request the `READ_CONTACTS` permission:
+
+```xml
+<uses-permission android:name="android.permission.READ_CONTACTS" />
+```
+
+And request it at runtime for Android 6.0+:
+
+```java
+if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+        != PackageManager.PERMISSION_GRANTED) {
+    ActivityCompat.requestPermissions(this,
+            new String[]{Manifest.permission.READ_CONTACTS}, 0);
+}
+```
+
+## Additional Options
+
+### Dismiss Dropdown on Selection
+
+You can configure the dropdown to dismiss automatically when an item is selected:
+
+```java
+phoneRetv.dismissDropDownOnItemSelected(true);
+```
+
+### Show All Contacts Programmatically
+
+You can trigger the dropdown to show all contacts programmatically:
+
+```java
+phoneRetv.showAllContacts();
+```
+
+This is useful when paired with a button, as shown in the sample app:
+
+```java
+final ImageButton showAll = (ImageButton) findViewById(R.id.show_all);
+showAll.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        phoneRetv.showAllContacts();
+    }
+});
+```
+
+<Tip>
+For email autocomplete instead of phone numbers, see the [Email Autocomplete Setup](/guides/email-autocomplete) guide.
+</Tip>
+
+## Next Steps
+
+- [Customize chip appearance](/guides/customization)
+- [Retrieve selected chips](/guides/retrieving-chips)
+- [Set up email autocomplete](/guides/email-autocomplete)

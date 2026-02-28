@@ -1,0 +1,241 @@
+---
+title: RecipientEditTextView
+description: Auto-complete text view for adding recipient chips with contact suggestions
+---
+
+`RecipientEditTextView` is the main component of the Android Chips library. It extends `MultiAutoCompleteTextView` to provide an auto-complete text view that converts contacts into visual chips as users type.
+
+## Overview
+
+RecipientEditTextView transforms text input into interactive chips representing recipients (email addresses or phone numbers). As users type, it shows autocomplete suggestions from the device's contacts, and creates chips when recipients are selected or committed.
+
+### Key Features
+
+- Converts recipient entries into visual chips
+- Provides autocomplete suggestions from contacts
+- Supports both email and phone number recipients
+- Handles chip selection, editing, and deletion
+- Automatically expands/shrinks based on focus state
+- Supports copying chip information to clipboard
+
+## Basic Usage
+
+### Email Recipients
+
+```java
+RecipientEditTextView emailRetv = findViewById(R.id.email_retv);
+emailRetv.setTokenizer(new Rfc822Tokenizer());
+emailRetv.setAdapter(new BaseRecipientAdapter(this));
+```
+
+### Phone Number Recipients
+
+```java
+RecipientEditTextView phoneRetv = findViewById(R.id.phone_retv);
+phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+    BaseRecipientAdapter.QUERY_TYPE_PHONE, 
+    this
+);
+
+// Query only mobile numbers
+adapter.setShowMobileOnly(true);
+
+phoneRetv.setAdapter(adapter);
+```
+
+## Core Methods
+
+### Setting Up the View
+
+<ResponseField name="setAdapter()" type="<T extends ListAdapter & Filterable> void">
+  Sets the adapter that provides contact suggestions. Must be a `BaseRecipientAdapter` or compatible adapter.
+  
+  ```java
+  emailRetv.setAdapter(new BaseRecipientAdapter(this));
+  ```
+</ResponseField>
+
+<ResponseField name="setTokenizer()" type="void">
+  Sets the tokenizer that splits text into individual recipients. Use `Rfc822Tokenizer` for emails or `CommaTokenizer` for phone numbers.
+  
+  ```java
+  // For email addresses
+  emailRetv.setTokenizer(new Rfc822Tokenizer());
+  
+  // For phone numbers
+  phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+  ```
+</ResponseField>
+
+### Retrieving Chips
+
+<ResponseField name="getSortedRecipients()" type="DrawableRecipientChip[]">
+  Returns all recipient chips currently in the view, sorted by their position.
+  
+  ```java
+  DrawableRecipientChip[] chips = phoneRetv.getSortedRecipients();
+  for (DrawableRecipientChip chip : chips) {
+      String name = chip.getEntry().getDisplayName();
+      String destination = chip.getEntry().getDestination();
+      Log.d("Chip", name + " <" + destination + ">");
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="getLastChip()" type="DrawableRecipientChip">
+  Returns the last chip in the view, or null if there are no chips.
+</ResponseField>
+
+### Behavior Control
+
+<ResponseField name="setOnFocusListShrinkRecipients()" type="void">
+  Controls whether the view shrinks to show a limited number of chips when it loses focus. By default, chips are limited and a "more" chip is shown.
+  
+  ```java
+  // Disable shrinking - show all chips even when not focused
+  emailRetv.setOnFocusListShrinkRecipients(false);
+  ```
+</ResponseField>
+
+<ResponseField name="append()" type="void">
+  Appends text to the view and creates chips from it. Automatically adds commas as separators.
+  
+  ```java
+  emailRetv.append("john@example.com", 0, "john@example.com".length());
+  ```
+</ResponseField>
+
+## Customization Attributes
+
+These XML attributes can be set in your layout file:
+
+<ParamField path="chipBackground" type="reference">
+  Drawable resource for the chip background in normal state.
+  
+  Default: `@drawable/chip_background`
+</ParamField>
+
+<ParamField path="chipBackgroundPressed" type="reference">
+  Drawable resource for the chip background when selected/pressed.
+  
+  Default: `@drawable/chip_background_selected`
+</ParamField>
+
+<ParamField path="invalidChipBackground" type="reference">
+  Drawable resource for chips representing invalid recipients (e.g., malformed email addresses).
+  
+  Default: `@drawable/chip_background_invalid`
+</ParamField>
+
+<ParamField path="chipDelete" type="reference">
+  Drawable resource for the delete icon shown when a chip is selected.
+  
+  Default: `@drawable/chip_delete`
+</ParamField>
+
+<ParamField path="chipHeight" type="reference">
+  Dimension resource for the height of chips.
+  
+  Default: `@dimen/chip_height`
+</ParamField>
+
+<ParamField path="chipFontSize" type="reference">
+  Dimension resource for the font size of text in chips.
+  
+  Default: `@dimen/chip_text_size`
+</ParamField>
+
+<ParamField path="chipPadding" type="reference">
+  Dimension resource for the internal padding of chips.
+  
+  Default: `@dimen/chip_padding`
+</ParamField>
+
+<ParamField path="avatarPosition" type="enum">
+  Position of the contact avatar/photo in the chip.
+  
+  - `end` (0) - Avatar on the right side (default)
+  - `start` (1) - Avatar on the left side
+</ParamField>
+
+<ParamField path="imageSpanAlignment" type="enum">
+  Vertical alignment of the chip ImageSpan.
+  
+  - `bottom` (0) - Align to bottom (default)
+  - `baseline` (1) - Align to text baseline
+</ParamField>
+
+<ParamField path="disableDelete" type="boolean">
+  When true, prevents chips from being deleted and shows the avatar instead of delete icon when selected.
+  
+  Default: `false`
+</ParamField>
+
+### Example XML Layout
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:chipBackground="@drawable/custom_chip_bg"
+    app:chipHeight="@dimen/custom_chip_height"
+    app:avatarPosition="start"
+    app:disableDelete="false" />
+```
+
+## Advanced Features
+
+### Chip Expansion/Shrinking
+
+The view automatically manages chip visibility based on focus:
+
+- **When focused**: Expands to show all chips and allows editing
+- **When unfocused**: Shrinks to show a limited number of chips (configurable via `CHIP_LIMIT`) and displays a "more" chip if there are additional chips
+
+### Commit Characters
+
+Chips are automatically created when users type these characters:
+- `,` (comma)
+- `;` (semicolon)
+- ` ` (space, in some contexts)
+
+### Validation
+
+You can set a custom validator to check recipient validity:
+
+```java
+emailRetv.setValidator(new AutoCompleteTextView.Validator() {
+    @Override
+    public boolean isValid(CharSequence text) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(text).matches();
+    }
+    
+    @Override
+    public CharSequence fixText(CharSequence invalidText) {
+        return invalidText + "@example.com";
+    }
+});
+```
+
+## Integration with BaseRecipientAdapter
+
+RecipientEditTextView is designed to work with [BaseRecipientAdapter](/components/base-recipient-adapter) for contact autocomplete:
+
+```java
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+    BaseRecipientAdapter.QUERY_TYPE_EMAIL, 
+    context,
+    10 // max results
+);
+
+adapter.setAccount(account); // Optional: prioritize contacts from specific account
+recipientView.setAdapter(adapter);
+```
+
+## Related Components
+
+- [BaseRecipientAdapter](/components/base-recipient-adapter) - Provides contact autocomplete functionality
+- [Recipient Chips](/components/recipient-chips) - Understanding chip types and their behavior

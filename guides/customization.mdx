@@ -1,0 +1,254 @@
+---
+title: Customizing Chip Appearance
+description: Learn how to customize the visual appearance of chips including backgrounds, colors, sizes, and avatar positioning
+---
+
+This guide shows you how to customize the appearance of chips in the Android Chips library using XML attributes and styles.
+
+## Available Customization Attributes
+
+The `RecipientEditTextView` supports several customization attributes that control the visual appearance of chips:
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `chipBackground` | reference | Drawable for the chip background |
+| `chipBackgroundPressed` | reference | Drawable for the pressed/selected state |
+| `chipDelete` | reference | Drawable for the delete icon |
+| `chipFontSize` | reference | Dimension for the chip text size |
+| `chipHeight` | reference | Dimension for the chip height |
+| `chipPadding` | reference | Dimension for internal chip padding |
+| `invalidChipBackground` | reference | Drawable for invalid chips |
+| `disableDelete` | boolean | Whether to disable the delete functionality |
+| `avatarPosition` | enum | Position of the contact avatar (start or end) |
+| `imageSpanAlignment` | enum | Vertical alignment of the chip (bottom or baseline) |
+
+## Basic Customization
+
+### Customizing in XML Layout
+
+You can customize chips directly in your layout XML using the custom attributes:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Email addresses"
+    app:chipHeight="@dimen/custom_chip_height"
+    app:chipFontSize="@dimen/custom_chip_font_size"
+    app:chipPadding="@dimen/custom_chip_padding"
+    app:avatarPosition="start" />
+```
+
+<Note>
+Make sure to include the namespace declaration in your root layout:
+`xmlns:app="http://schemas.android.com/apk/res-auto"`
+</Note>
+
+## Customizing Chip Backgrounds
+
+### Setting Custom Background Drawables
+
+You can provide custom drawables for different chip states:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:chipBackground="@drawable/custom_chip_background"
+    app:chipBackgroundPressed="@drawable/custom_chip_background_pressed"
+    app:invalidChipBackground="@drawable/invalid_chip_background" />
+```
+
+### Creating a Custom Chip Background
+
+Create a drawable resource file (`res/drawable/custom_chip_background.xml`):
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#E0E0E0" />
+    <corners android:radius="16dp" />
+    <padding
+        android:left="8dp"
+        android:right="8dp"
+        android:top="4dp"
+        android:bottom="4dp" />
+</shape>
+```
+
+### Creating a Pressed State Drawable
+
+Create a pressed state drawable (`res/drawable/custom_chip_background_pressed.xml`):
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#BDBDBD" />
+    <corners android:radius="16dp" />
+    <padding
+        android:left="8dp"
+        android:right="8dp"
+        android:top="4dp"
+        android:bottom="4dp" />
+</shape>
+```
+
+## Customizing Chip Dimensions
+
+### Setting Chip Height and Font Size
+
+Define custom dimensions in `res/values/dimens.xml`:
+
+```xml
+<resources>
+    <dimen name="custom_chip_height">32dp</dimen>
+    <dimen name="custom_chip_font_size">14sp</dimen>
+    <dimen name="custom_chip_padding">8dp</dimen>
+</resources>
+```
+
+Then reference them in your layout:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:chipHeight="@dimen/custom_chip_height"
+    app:chipFontSize="@dimen/custom_chip_font_size"
+    app:chipPadding="@dimen/custom_chip_padding" />
+```
+
+## Avatar Positioning
+
+Control where the contact avatar appears in the chip:
+
+```xml
+<!-- Avatar at the start (left in LTR, right in RTL) -->
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:avatarPosition="start" />
+
+<!-- Avatar at the end (right in LTR, left in RTL) -->
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv_2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:avatarPosition="end" />
+```
+
+<Info>
+- `avatarPosition="start"` (value: `1`) - Places avatar at the beginning of the chip
+- `avatarPosition="end"` (value: `0`) - Places avatar at the end of the chip (default)
+</Info>
+
+## Chip Alignment
+
+Control the vertical alignment of chips within the text:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:imageSpanAlignment="baseline" />
+```
+
+<Info>
+- `imageSpanAlignment="bottom"` (value: `0`) - Aligns chip to the bottom of the line
+- `imageSpanAlignment="baseline"` (value: `1`) - Aligns chip to the text baseline
+</Info>
+
+## Customizing the Delete Icon
+
+### Setting a Custom Delete Icon
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:chipDelete="@drawable/custom_delete_icon" />
+```
+
+### Disabling Delete Functionality
+
+You can disable the ability to delete chips:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:disableDelete="true" />
+```
+
+<Warning>
+When `disableDelete` is set to `true`, users will not be able to remove chips by clicking the delete icon.
+</Warning>
+
+## Creating a Custom Style
+
+You can create a reusable style in `res/values/styles.xml`:
+
+```xml
+<style name="CustomRecipientEditTextView" parent="RecipientEditTextView">
+    <item name="chipHeight">@dimen/custom_chip_height</item>
+    <item name="chipFontSize">@dimen/custom_chip_font_size</item>
+    <item name="chipPadding">@dimen/custom_chip_padding</item>
+    <item name="chipBackground">@drawable/custom_chip_background</item>
+    <item name="chipBackgroundPressed">@drawable/custom_chip_background_pressed</item>
+    <item name="avatarPosition">start</item>
+    <item name="imageSpanAlignment">baseline</item>
+</style>
+```
+
+Then apply it to your view:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    style="@style/CustomRecipientEditTextView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Email addresses" />
+```
+
+## Complete Customization Example
+
+Here's a complete example with multiple customizations:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Email addresses"
+    android:minHeight="58dp"
+    app:chipBackground="@drawable/custom_chip_background"
+    app:chipBackgroundPressed="@drawable/custom_chip_background_pressed"
+    app:invalidChipBackground="@drawable/invalid_chip_background"
+    app:chipDelete="@drawable/custom_delete_icon"
+    app:chipHeight="@dimen/custom_chip_height"
+    app:chipFontSize="@dimen/custom_chip_font_size"
+    app:chipPadding="@dimen/custom_chip_padding"
+    app:avatarPosition="start"
+    app:imageSpanAlignment="baseline"
+    app:disableDelete="false" />
+```
+
+<Tip>
+Test your customizations with both light and dark themes to ensure good visibility in all conditions.
+</Tip>
+
+## Next Steps
+
+- [Retrieve selected chips](/guides/retrieving-chips)
+- [Email autocomplete setup](/guides/email-autocomplete)
+- [Phone autocomplete setup](/guides/phone-autocomplete)

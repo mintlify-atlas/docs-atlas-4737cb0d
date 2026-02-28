@@ -1,80 +1,166 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick start
+description: Get up and running with Android Chips in minutes
 ---
 
-## Get started in three steps
+Get your first chips autocomplete view working in just a few steps. This guide will show you how to implement both email and phone number autocomplete using the Android Chips library.
 
-Get your documentation site running locally and make your first customization.
+<Note>
+  Before starting, make sure you've completed the [installation](/installation) steps and configured the READ_CONTACTS permission.
+</Note>
 
-### Step 1: Set up your local environment
+## Email recipient selection
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+Create an autocomplete field for email addresses with these simple steps:
+
+<Steps>
+  <Step title="Add the view to your layout">
+    Add `RecipientEditTextView` to your XML layout:
+
+    ```xml
+    <com.android.ex.chips.RecipientEditTextView
+        android:id="@+id/email_retv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    ```
+  </Step>
+
+  <Step title="Configure the view in your Activity">
+    Set up the email autocomplete with `Rfc822Tokenizer`:
+
+    ```java
+    final RecipientEditTextView emailRetv =
+            (RecipientEditTextView) findViewById(R.id.email_retv);
+    emailRetv.setTokenizer(new Rfc822Tokenizer());
+    emailRetv.setAdapter(new BaseRecipientAdapter(this));
+    ```
+  </Step>
+</Steps>
+
+That's it! Your email autocomplete is ready to use.
+
+<Info>
+  The `Rfc822Tokenizer` is designed for email addresses and follows the RFC 822 standard, allowing formats like "John Doe &lt;john@example.com&gt;".
+</Info>
+
+## Phone number selection
+
+For phone number autocomplete, use `QUERY_TYPE_PHONE` and `CommaTokenizer`:
+
+<Steps>
+  <Step title="Add the view to your layout">
+    Add `RecipientEditTextView` to your XML layout:
+
+    ```xml
+    <com.android.ex.chips.RecipientEditTextView
+        android:id="@+id/phone_retv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    ```
+  </Step>
+
+  <Step title="Configure the view with phone adapter">
+    Set up the phone autocomplete:
+
+    ```java
+    final RecipientEditTextView phoneRetv =
+            (RecipientEditTextView) findViewById(R.id.phone_retv);
+    phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+    BaseRecipientAdapter baseRecipientAdapter = new BaseRecipientAdapter(
+        BaseRecipientAdapter.QUERY_TYPE_PHONE, 
+        this
+    );
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    // Queries for all phone numbers. Includes phone numbers marked as "mobile" and "others".
+    // If set as true, baseRecipientAdapter will query only for phone numbers marked as "mobile".  
+    baseRecipientAdapter.setShowMobileOnly(false);
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    phoneRetv.setAdapter(baseRecipientAdapter);
+    ```
+  </Step>
+</Steps>
 
-### Step 2: Deploy your changes
+<Tip>
+  Set `setShowMobileOnly(true)` if you want to filter only mobile phone numbers and exclude landlines.
+</Tip>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+## Retrieving selected chips
+
+Once users have selected contacts, you can retrieve them using `getSortedRecipients()`:
+
+```java
+DrawableRecipientChip[] chips = phoneRetv.getSortedRecipients();
+
+for (DrawableRecipientChip chip : chips) {
+    String displayName = chip.getEntry().getDisplayName();
+    String destination = chip.getEntry().getDestination();
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    Log.d("Chip", displayName + ": " + destination);
+}
+```
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+## Complete example
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+Here's a complete Activity implementation with permission handling:
 
-### Step 3: Go live
+```java
+public class MainActivity extends AppCompatActivity {
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Request READ_CONTACTS permission if not granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS}, 0);
+        }
+
+        // Set up phone number autocomplete
+        final RecipientEditTextView phoneRetv =
+                (RecipientEditTextView) findViewById(R.id.phone_retv);
+        phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+            BaseRecipientAdapter.QUERY_TYPE_PHONE, 
+            this
+        );
+        adapter.setShowMobileOnly(true);
+        phoneRetv.setAdapter(adapter);
+        phoneRetv.dismissDropDownOnItemSelected(true);
+    }
+}
+```
+
+## Additional configuration
+
+The library provides several optional configuration methods:
+
+```java
+// Automatically dismiss dropdown when user selects an item
+phoneRetv.dismissDropDownOnItemSelected(true);
+
+// Show all contacts in dropdown (useful for button click)
+phoneRetv.showAllContacts();
+
+// Filter for mobile numbers only
+baseRecipientAdapter.setShowMobileOnly(true);
+```
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Email autocomplete" icon="envelope" href="/guides/email-autocomplete">
+    Detailed guide for email setup
+  </Card>
+  <Card title="Phone autocomplete" icon="phone" href="/guides/phone-autocomplete">
+    Advanced phone number configuration
+  </Card>
+  <Card title="Customization" icon="palette" href="/guides/customization">
+    Customize chip appearance
+  </Card>
+  <Card title="Retrieving chips" icon="list" href="/guides/retrieving-chips">
+    Working with selected chips
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

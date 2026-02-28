@@ -1,0 +1,309 @@
+---
+title: BaseRecipientAdapter
+description: Adapter for providing contact autocomplete suggestions in RecipientEditTextView
+---
+
+`BaseRecipientAdapter` is a filterable adapter that queries the device's contacts database to provide autocomplete suggestions for email addresses or phone numbers.
+
+## Overview
+
+BaseRecipientAdapter extends `BaseAdapter` and implements `Filterable` to provide asynchronous contact searching. It queries both local contacts and directory sources, deduplicates results, and caches contact photos for performance.
+
+### Key Features
+
+- Queries contacts for email addresses or phone numbers
+- Supports local contacts and remote directory sources
+- Automatic photo fetching and caching
+- Duplicate removal across data sources
+- Configurable result limits
+- Account-specific contact prioritization
+
+## Basic Usage
+
+### Email Adapter
+
+```java
+// Simple email adapter with default settings
+BaseRecipientAdapter emailAdapter = new BaseRecipientAdapter(context);
+recipientEditTextView.setAdapter(emailAdapter);
+```
+
+### Phone Adapter
+
+```java
+// Phone number adapter
+BaseRecipientAdapter phoneAdapter = new BaseRecipientAdapter(
+    BaseRecipientAdapter.QUERY_TYPE_PHONE,
+    context
+);
+
+// Query only mobile phone numbers
+phoneAdapter.setShowMobileOnly(true);
+
+recipientEditTextView.setAdapter(phoneAdapter);
+```
+
+## Constructors
+
+<ResponseField name="BaseRecipientAdapter(Context context)" type="constructor">
+  Creates an email adapter with default settings (max 10 results).
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(context);
+  ```
+</ResponseField>
+
+<ResponseField name="BaseRecipientAdapter(Context context, int preferredMaxResultCount)" type="constructor">
+  Creates an email adapter with a custom result limit.
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(context, 20);
+  ```
+</ResponseField>
+
+<ResponseField name="BaseRecipientAdapter(int queryMode, Context context)" type="constructor">
+  Creates an adapter with the specified query type.
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+      BaseRecipientAdapter.QUERY_TYPE_PHONE,
+      context
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="BaseRecipientAdapter(Context context, int preferredMaxResultCount, int queryMode)" type="constructor">
+  Creates an adapter with custom result limit and query type.
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+      context,
+      15,
+      BaseRecipientAdapter.QUERY_TYPE_EMAIL
+  );
+  ```
+</ResponseField>
+
+## Query Types
+
+<ParamField path="QUERY_TYPE_EMAIL" type="int" default="0">
+  Query contacts for email addresses. This is the default query type.
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+      BaseRecipientAdapter.QUERY_TYPE_EMAIL,
+      context
+  );
+  ```
+</ParamField>
+
+<ParamField path="QUERY_TYPE_PHONE" type="int" default="1">
+  Query contacts for phone numbers.
+  
+  ```java
+  BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+      BaseRecipientAdapter.QUERY_TYPE_PHONE,
+      context
+  );
+  ```
+</ParamField>
+
+## Configuration Methods
+
+### Account Settings
+
+<ResponseField name="setAccount()" type="void">
+  Sets the account to prioritize in search results. When set, contacts from this account appear higher in the results.
+  
+  ```java
+  Account account = new Account("user@example.com", "com.google");
+  adapter.setAccount(account);
+  ```
+</ResponseField>
+
+<ResponseField name="getAccount()" type="Account">
+  Returns the currently set priority account, or null if none is set.
+  
+  ```java
+  Account account = adapter.getAccount();
+  ```
+</ResponseField>
+
+### Phone Number Filtering
+
+<ResponseField name="setShowMobileOnly()" type="void">
+  When set to true and using `QUERY_TYPE_PHONE`, only returns phone numbers marked as "mobile" type.
+  
+  ```java
+  // Only show mobile phone numbers
+  adapter.setShowMobileOnly(true);
+  ```
+  
+  <Note>
+    This setting only applies to phone number queries (`QUERY_TYPE_PHONE`). It has no effect on email queries.
+  </Note>
+</ResponseField>
+
+<ResponseField name="isShowMobileOnly()" type="boolean">
+  Returns whether the adapter is configured to show only mobile phone numbers.
+  
+  ```java
+  boolean mobileOnly = adapter.isShowMobileOnly();
+  ```
+</ResponseField>
+
+### Observer Registration
+
+<ResponseField name="registerUpdateObserver()" type="void">
+  Registers an observer to be notified when the entry list is updated.
+  
+  ```java
+  adapter.registerUpdateObserver(new BaseRecipientAdapter.EntriesUpdatedObserver() {
+      @Override
+      public void onChanged(List<RecipientEntry> entries) {
+          Log.d("Adapter", "Entries updated: " + entries.size() + " results");
+      }
+  });
+  ```
+</ResponseField>
+
+## How It Works
+
+### Search Process
+
+1. **User types** in RecipientEditTextView
+2. **Filter activated** - Adapter receives the constraint (search query)
+3. **Local search** - Queries default directory (device contacts)
+4. **Results processed** - Duplicates removed, entries aggregated by contact
+5. **Directory search** - If needed, queries additional directories (Exchange, etc.)
+6. **Photos fetched** - Contact photos loaded asynchronously and cached
+7. **Results displayed** - Adapter notifies RecipientEditTextView of updates
+
+### Result Limits
+
+The adapter uses `DEFAULT_PREFERRED_MAX_RESULT_COUNT` (10) as the default maximum number of results. This can be customized via the constructor:
+
+```java
+// Show up to 25 results
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(context, 25);
+```
+
+The adapter adds `ALLOWANCE_FOR_DUPLICATES` (5) extra entries to each query to account for duplicates that will be removed.
+
+### Deduplication
+
+Results are deduplicated based on destination (email address or phone number). If the same email/phone appears multiple times:
+
+- Multiple addresses for the same contact are grouped together
+- The first occurrence is shown as a top-level entry
+- Additional addresses appear as second-level entries
+- Duplicate destinations across different contacts are filtered out
+
+### Photo Caching
+
+Contact photos are cached in an LRU cache with a maximum size of 200 photos. Photos are fetched asynchronously to avoid blocking the UI thread:
+
+```java
+// Photos are automatically fetched and cached
+// No manual intervention required
+RecipientEntry entry = adapter.getItem(position);
+byte[] photoBytes = entry.getPhotoBytes(); // May be null initially
+```
+
+## Directory Search
+
+The adapter can search multiple contact directories:
+
+- **Local contacts** - Device's primary contact storage
+- **Exchange directories** - Corporate directory services
+- **Other directories** - Third-party contact providers
+
+Directory search is automatically triggered when local results are insufficient (less than the preferred max count).
+
+### Directory Search Behavior
+
+- Searches happen in parallel for better performance
+- A "Waiting for more contacts" message shows if directory results are slow
+- Results are merged with local contacts as they arrive
+- Directory search respects the overall result limit
+
+## Data Retrieval
+
+<ResponseField name="getItem()" type="RecipientEntry">
+  Returns the recipient entry at the specified position.
+  
+  ```java
+  RecipientEntry entry = adapter.getItem(0);
+  String displayName = entry.getDisplayName();
+  String destination = entry.getDestination();
+  long contactId = entry.getContactId();
+  ```
+</ResponseField>
+
+<ResponseField name="getCount()" type="int">
+  Returns the total number of results in the adapter.
+  
+  ```java
+  int resultCount = adapter.getCount();
+  ```
+</ResponseField>
+
+<ResponseField name="getQueryType()" type="int">
+  Returns the query type (QUERY_TYPE_EMAIL or QUERY_TYPE_PHONE).
+  
+  ```java
+  int queryType = adapter.getQueryType();
+  if (queryType == BaseRecipientAdapter.QUERY_TYPE_PHONE) {
+      // Handle phone number results
+  }
+  ```
+</ResponseField>
+
+## Advanced Usage
+
+### Custom Result Matching
+
+```java
+// Override getMatchingRecipients for custom matching logic
+BaseRecipientAdapter customAdapter = new BaseRecipientAdapter(context) {
+    @Override
+    public Map<String, RecipientEntry> getMatchingRecipients(Set<String> addresses) {
+        // Add custom recipient matching logic
+        // Return map of address -> RecipientEntry
+        return super.getMatchingRecipients(addresses);
+    }
+};
+```
+
+### Account-Specific Queries
+
+```java
+// Prioritize contacts from a specific account
+Account workAccount = new Account("work@company.com", "com.google");
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+    context,
+    10,
+    BaseRecipientAdapter.QUERY_TYPE_EMAIL
+);
+adapter.setAccount(workAccount);
+
+// Contacts from work@company.com will appear first in results
+```
+
+## Performance Considerations
+
+<Tip>
+  - Photo fetching is limited to the first 20 visible items by default
+  - Photos are cached in memory to reduce database queries
+  - Directory searches happen asynchronously to avoid blocking the UI
+  - Results are deduplicated to minimize the number of items displayed
+</Tip>
+
+<Warning>
+  The adapter requires `READ_CONTACTS` permission to function. Ensure this permission is granted before creating the adapter.
+</Warning>
+
+## Related Components
+
+- [RecipientEditTextView](/components/recipient-edit-text-view) - The view component that uses this adapter
+- [Recipient Chips](/components/recipient-chips) - Understanding the chip objects returned in results

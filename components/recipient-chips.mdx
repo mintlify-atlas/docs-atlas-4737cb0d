@@ -1,0 +1,423 @@
+---
+title: Recipient Chips
+description: Understanding the different chip types and their roles in the chips library
+---
+
+The Android Chips library uses different chip types to represent recipients in various states. Understanding these types helps you work effectively with the library.
+
+## Chip Type Hierarchy
+
+All chip types implement the `DrawableRecipientChip` interface, which extends `BaseRecipientChip`:
+
+```
+BaseRecipientChip (interface)
+└── DrawableRecipientChip (interface)
+    ├── VisibleRecipientChip (class)
+    └── InvisibleRecipientChip (class)
+```
+
+## DrawableRecipientChip Interface
+
+`DrawableRecipientChip` is the primary interface for all recipient chips. It defines the core functionality that all chip types must implement.
+
+### Interface Definition
+
+Located at: `RecipientEditTextView.java:48-50`
+
+```java
+public interface DrawableRecipientChip extends BaseRecipientChip {
+    Rect getBounds();
+    void draw(Canvas canvas);
+}
+```
+
+### Core Methods
+
+From `BaseRecipientChip`:
+
+<ResponseField name="getEntry()" type="RecipientEntry">
+  Returns the RecipientEntry object containing all contact information for this chip.
+  
+  ```java
+  DrawableRecipientChip chip = chips[0];
+  RecipientEntry entry = chip.getEntry();
+  String name = entry.getDisplayName();
+  String email = entry.getDestination();
+  ```
+</ResponseField>
+
+<ResponseField name="getDisplay()" type="CharSequence">
+  Returns the text displayed in the chip (usually the contact's display name).
+  
+  ```java
+  CharSequence displayText = chip.getDisplay();
+  ```
+</ResponseField>
+
+<ResponseField name="getValue()" type="CharSequence">
+  Returns the actual value the chip represents (email address or phone number).
+  
+  ```java
+  CharSequence value = chip.getValue(); // e.g., "john@example.com"
+  ```
+</ResponseField>
+
+<ResponseField name="getContactId()" type="long">
+  Returns the contact ID from the contacts database, or a special value for generated contacts.
+  
+  ```java
+  long contactId = chip.getContactId();
+  if (contactId == RecipientEntry.INVALID_CONTACT) {
+      // Contact not in database
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="isSelected()" type="boolean">
+  Returns true if the chip is currently selected.
+  
+  ```java
+  if (chip.isSelected()) {
+      // Chip is selected - user can delete it
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="setSelected()" type="void">
+  Sets the selected state of the chip.
+  
+  ```java
+  chip.setSelected(true); // Select the chip
+  ```
+</ResponseField>
+
+<ResponseField name="getOriginalText()" type="CharSequence">
+  Returns the original text that was typed before the chip was created.
+  
+  ```java
+  CharSequence originalText = chip.getOriginalText();
+  ```
+</ResponseField>
+
+From `DrawableRecipientChip`:
+
+<ResponseField name="getBounds()" type="Rect">
+  Returns the bounds of the chip in the text view. For invisible chips, returns a Rect with all zeros.
+  
+  ```java
+  Rect bounds = chip.getBounds();
+  int width = bounds.right - bounds.left;
+  ```
+</ResponseField>
+
+<ResponseField name="draw()" type="void">
+  Draws the chip on the canvas (if visible).
+</ResponseField>
+
+## VisibleRecipientChip
+
+`VisibleRecipientChip` is the standard chip type that renders as a visible, drawable element in the text view.
+
+### Class Definition
+
+Located at: `recipientchip/VisibleRecipientChip.java`
+
+```java
+public class VisibleRecipientChip extends ImageSpan implements DrawableRecipientChip
+```
+
+### Characteristics
+
+- Extends `ImageSpan` to render as an image in the text
+- Has visible bounds and can be drawn on the canvas
+- Shows contact photo (if available) and display name
+- Can be in normal or selected state
+- Uses a drawable background (different for selected/unselected states)
+
+### When It's Used
+
+VisibleRecipientChip is used when:
+- A contact is selected from the autocomplete dropdown
+- Text is committed and creates a valid recipient chip
+- The view is in expanded state showing all chips
+- Chips are being actively displayed to the user
+
+### Constructor
+
+```java
+public VisibleRecipientChip(
+    final Drawable drawable,
+    final RecipientEntry entry,
+    final int verticalAlignment
+)
+```
+
+**Parameters:**
+- `drawable` - The drawable to display (includes background, text, and photo)
+- `entry` - The RecipientEntry with contact information
+- `verticalAlignment` - Either `ImageSpan.ALIGN_BOTTOM` or `ImageSpan.ALIGN_BASELINE`
+
+### Visual States
+
+**Normal State:**
+- Shows chip background (`chipBackground` attribute)
+- Displays contact photo or default avatar
+- Text in default color
+
+**Selected State:**
+- Shows pressed background (`chipBackgroundPressed` attribute)
+- Displays delete icon (or avatar if `disableDelete` is true)
+- Text in white color
+
+### Example Usage
+
+VisibleRecipientChip instances are created automatically by RecipientEditTextView. You typically interact with them rather than create them:
+
+```java
+DrawableRecipientChip[] chips = recipientView.getSortedRecipients();
+for (DrawableRecipientChip chip : chips) {
+    if (chip instanceof VisibleRecipientChip) {
+        // This is a visible chip
+        Rect bounds = chip.getBounds();
+        Log.d("Chip", "Visible chip at: " + bounds);
+    }
+}
+```
+
+## InvisibleRecipientChip
+
+`InvisibleRecipientChip` represents a recipient that exists as data but is not visually rendered in the text view.
+
+### Class Definition
+
+Located at: `recipientchip/InvisibleRecipientChip.java`
+
+```java
+public class InvisibleRecipientChip extends ReplacementSpan implements DrawableRecipientChip
+```
+
+### Characteristics
+
+- Extends `ReplacementSpan` but doesn't draw anything
+- Returns bounds of (0, 0, 0, 0)
+- `draw()` method is a no-op
+- Still contains all recipient data
+- Uses zero width in text layout
+
+### When It's Used
+
+InvisibleRecipientChip is used when:
+- The view is in collapsed state and showing a "more" chip
+- Chips are hidden to save space when the view loses focus
+- Temporary storage of recipient data before full chip creation
+- Recipients exist but shouldn't take visual space
+
+### Constructor
+
+```java
+public InvisibleRecipientChip(final RecipientEntry entry)
+```
+
+**Parameters:**
+- `entry` - The RecipientEntry with contact information
+
+### Implementation Details
+
+```java
+@Override
+public void draw(
+    final Canvas canvas,
+    final CharSequence text,
+    final int start,
+    final int end,
+    final float x,
+    final int top,
+    final int y,
+    final int bottom,
+    final Paint paint
+) {
+    // Do nothing - chip is invisible
+}
+
+@Override
+public int getSize(
+    final Paint paint,
+    final CharSequence text,
+    final int start,
+    final int end,
+    final Paint.FontMetricsInt fm
+) {
+    return 0; // Takes no space
+}
+```
+
+## Retrieving Chips
+
+RecipientEditTextView provides several methods to retrieve chips:
+
+### Get All Chips (Sorted)
+
+```java
+DrawableRecipientChip[] allChips = recipientView.getSortedRecipients();
+
+for (DrawableRecipientChip chip : allChips) {
+    RecipientEntry entry = chip.getEntry();
+    
+    String displayName = entry.getDisplayName();
+    String destination = entry.getDestination();
+    long contactId = entry.getContactId();
+    
+    Log.d("Chip", displayName + " <" + destination + ">");
+}
+```
+
+### Get Last Chip
+
+```java
+DrawableRecipientChip lastChip = recipientView.getLastChip();
+if (lastChip != null) {
+    RecipientEntry entry = lastChip.getEntry();
+    // Work with the last chip
+}
+```
+
+### Iterate and Filter
+
+```java
+DrawableRecipientChip[] chips = recipientView.getSortedRecipients();
+
+List<String> emailAddresses = new ArrayList<>();
+for (DrawableRecipientChip chip : chips) {
+    emailAddresses.add(chip.getValue().toString());
+}
+
+// Get only valid contact IDs (exclude generated/typed entries)
+List<Long> contactIds = new ArrayList<>();
+for (DrawableRecipientChip chip : chips) {
+    long id = chip.getContactId();
+    if (id != RecipientEntry.INVALID_CONTACT && 
+        id != RecipientEntry.GENERATED_CONTACT) {
+        contactIds.add(id);
+    }
+}
+```
+
+## Working with Chip Data
+
+### Extract Contact Information
+
+```java
+DrawableRecipientChip chip = chips[0];
+RecipientEntry entry = chip.getEntry();
+
+// Basic info
+String displayName = entry.getDisplayName();
+String destination = entry.getDestination(); // email or phone
+long contactId = entry.getContactId();
+long dataId = entry.getDataId();
+
+// Directory info
+Long directoryId = entry.getDirectoryId();
+String lookupKey = entry.getLookupKey();
+
+// Destination type (for phone numbers)
+int destinationType = entry.getDestinationType();
+String destinationLabel = entry.getDestinationLabel();
+
+// Photo
+byte[] photoBytes = entry.getPhotoBytes();
+Uri photoUri = entry.getPhotoThumbnailUri();
+
+// Validity
+boolean isValid = entry.isValid();
+```
+
+### Check Chip Type
+
+```java
+DrawableRecipientChip chip = chips[0];
+
+if (chip instanceof VisibleRecipientChip) {
+    // Chip is visible
+    Rect bounds = chip.getBounds();
+    int chipWidth = bounds.width();
+} else if (chip instanceof InvisibleRecipientChip) {
+    // Chip is hidden
+    // Still has data but no visual representation
+}
+```
+
+## Chip Lifecycle
+
+### 1. Creation
+
+Chips are created when:
+- User selects a contact from autocomplete
+- User types text and commits it (comma, semicolon, or submit)
+- Text is appended programmatically via `append()`
+
+### 2. Temporary State
+
+Newly created chips may start as temporary chips in `mTemporaryRecipients`. These are later upgraded to full chips with complete contact data through a background lookup task.
+
+### 3. Visible Display
+
+Chips become `VisibleRecipientChip` instances when:
+- The view has focus and is expanded
+- The chip is within the visible limit (typically first 2 chips)
+
+### 4. Hidden State
+
+Chips become `InvisibleRecipientChip` instances when:
+- The view loses focus and shrinks
+- There are more chips than the visible limit
+- A "more" chip is shown to represent hidden chips
+
+### 5. Selection
+
+Chips can be selected by:
+- Tapping/clicking on them
+- Using keyboard navigation
+
+When selected:
+- `isSelected()` returns true
+- Visual appearance changes to selected state
+- Delete icon is shown (unless `disableDelete` is true)
+
+### 6. Deletion
+
+Chips can be deleted by:
+- Clicking the delete icon on a selected chip
+- Pressing backspace/delete key
+- Calling programmatic methods
+
+## Best Practices
+
+<Tip>
+  Always check if a chip exists before accessing its properties:
+  
+  ```java
+  DrawableRecipientChip lastChip = recipientView.getLastChip();
+  if (lastChip != null) {
+      String value = lastChip.getValue().toString();
+  }
+  ```
+</Tip>
+
+<Tip>
+  Use `getEntry()` to access all chip data in one place:
+  
+  ```java
+  RecipientEntry entry = chip.getEntry();
+  // All data available through entry object
+  ```
+</Tip>
+
+<Warning>
+  Don't hold references to chip objects for long periods. The internal chip array can change as users edit recipients. Always call `getSortedRecipients()` when you need current chips.
+</Warning>
+
+## Related Components
+
+- [RecipientEditTextView](/components/recipient-edit-text-view) - Creates and manages chips
+- [BaseRecipientAdapter](/components/base-recipient-adapter) - Provides contact data for chips

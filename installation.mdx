@@ -1,0 +1,169 @@
+---
+title: Installation
+description: Add Android Chips to your project and configure the necessary dependencies and permissions
+---
+
+# Installation
+
+Get started with Android Chips by adding it to your Android project. The library is available through Maven Central and can be easily integrated using Gradle.
+
+## Prerequisites
+
+Before installing Android Chips, ensure your project meets these requirements:
+
+- Android API level 11 (Honeycomb) or higher
+- Gradle build system
+- Android Support Library v4
+
+## Add the dependency
+
+<Steps>
+  <Step title="Open your module's build.gradle file">
+    Navigate to your app module's `build.gradle` file (usually located at `app/build.gradle`).
+  </Step>
+
+  <Step title="Add the Android Chips dependency">
+    Add the following line to your `dependencies` block:
+
+    ```groovy
+    dependencies {
+        compile 'com.klinkerapps:android-chips:1.1.1@aar'
+    }
+    ```
+
+    <Note>
+      The `@aar` suffix is important as it specifies the Android Archive format.
+    </Note>
+  </Step>
+
+  <Step title="Sync your project">
+    Click "Sync Now" in Android Studio or run the following command:
+
+    ```bash
+    ./gradlew sync
+    ```
+  </Step>
+</Steps>
+
+## Configure permissions
+
+The library requires access to the device's contacts to provide autocomplete functionality.
+
+<Steps>
+  <Step title="Add the READ_CONTACTS permission">
+    Open your `AndroidManifest.xml` file and add the permission:
+
+    ```xml
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.yourapp.package">
+
+        <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+        <application>
+            <!-- Your app configuration -->
+        </application>
+    </manifest>
+    ```
+  </Step>
+
+  <Step title="Request runtime permission (API 23+)">
+    For Android 6.0 (API level 23) and above, you must request the permission at runtime:
+
+    ```java
+    import android.Manifest;
+    import android.content.pm.PackageManager;
+    import android.support.v4.app.ActivityCompat;
+    import android.support.v4.content.ContextCompat;
+
+    // Check if permission is granted
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED) {
+        // Request the permission
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_CONTACTS}, 0);
+    }
+    ```
+
+    <Warning>
+      Without the READ_CONTACTS permission, the autocomplete functionality will not work. Make sure to handle the case where users deny the permission.
+    </Warning>
+  </Step>
+</Steps>
+
+## Add the view to your layout
+
+Now you can add the `RecipientEditTextView` to your layout XML:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/recipient_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Enter recipients" />
+```
+
+## Verify installation
+
+To verify that the library is correctly installed, try building your project:
+
+```bash
+./gradlew build
+```
+
+If the build succeeds without errors, you're ready to start using Android Chips!
+
+<Tip>
+  For a complete working example, check out the [Quick start guide](/quickstart) to implement your first chips view.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Build fails with 'Could not find' error">
+    Make sure you have the correct repository configured in your project's `build.gradle`:
+
+    ```groovy
+    allprojects {
+        repositories {
+            google()
+            mavenCentral()
+        }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Autocomplete doesn't show suggestions">
+    Verify that:
+    - The READ_CONTACTS permission is declared in your manifest
+    - You've requested and been granted runtime permission on API 23+
+    - You've set up the adapter correctly (see [Quick start](/quickstart))
+  </Accordion>
+
+  <Accordion title="Support library conflicts">
+    If you encounter support library version conflicts, ensure all your support libraries use the same version:
+
+    ```groovy
+    ext.supportLibVersion = '25.3.1'
+
+    dependencies {
+        compile "com.android.support:support-v4:$supportLibVersion"
+        compile "com.android.support:appcompat-v7:$supportLibVersion"
+        compile 'com.klinkerapps:android-chips:1.1.1@aar'
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+Now that you have Android Chips installed, you're ready to implement it in your app:
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Create your first chips implementation
+  </Card>
+  
+  <Card title="Email chips" icon="envelope" href="/guides/email-autocomplete">
+    Set up email recipient selection
+  </Card>
+</CardGroup>

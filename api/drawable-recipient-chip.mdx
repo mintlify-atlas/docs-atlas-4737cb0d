@@ -1,0 +1,358 @@
+---
+title: DrawableRecipientChip
+description: Complete API reference for DrawableRecipientChip interface
+---
+
+## Overview
+
+`DrawableRecipientChip` is an interface that defines a drawable object containing information relevant to a particular recipient. It extends `BaseRecipientChip` and adds drawing capabilities for visual representation of recipient chips.
+
+**Package**: `com.android.ex.chips.recipientchip`
+
+**Extends**: `BaseRecipientChip`
+
+## Methods
+
+### getBounds()
+
+```java
+Rect getBounds()
+```
+
+Returns the bounds of the chip. May be 0,0 if the chip is not visibly rendered.
+
+<ResponseField name="return" type="Rect">
+  The bounding rectangle of the chip
+</ResponseField>
+
+### draw()
+
+```java
+void draw(Canvas canvas)
+```
+
+Draws the chip on the provided canvas.
+
+<ParamField path="canvas" type="Canvas" required>
+  The canvas on which to draw the chip
+</ParamField>
+
+## Inherited from BaseRecipientChip
+
+### setSelected()
+
+```java
+void setSelected(boolean selected)
+```
+
+Sets the selected state of the chip.
+
+<ParamField path="selected" type="boolean" required>
+  True to select the chip, false to deselect
+</ParamField>
+
+### isSelected()
+
+```java
+boolean isSelected()
+```
+
+Returns whether the chip is currently selected.
+
+<ResponseField name="return" type="boolean">
+  True if the chip is selected
+</ResponseField>
+
+### getDisplay()
+
+```java
+CharSequence getDisplay()
+```
+
+Returns the text displayed in the chip.
+
+<ResponseField name="return" type="CharSequence">
+  The display text
+</ResponseField>
+
+### getValue()
+
+```java
+CharSequence getValue()
+```
+
+Returns the text value this chip represents (typically the email or phone number).
+
+<ResponseField name="return" type="CharSequence">
+  The value text
+</ResponseField>
+
+### getContactId()
+
+```java
+long getContactId()
+```
+
+Returns the ID of the contact associated with this chip.
+
+<ResponseField name="return" type="long">
+  The contact ID or RecipientEntry.INVALID_CONTACT/GENERATED_CONTACT
+</ResponseField>
+
+### getDirectoryId()
+
+```java
+Long getDirectoryId()
+```
+
+Returns the directory ID of the contact associated with this chip.
+
+<ResponseField name="return" type="Long">
+  The directory ID or null if not from a directory
+</ResponseField>
+
+### getLookupKey()
+
+```java
+String getLookupKey()
+```
+
+Returns the directory lookup key associated with this chip.
+
+<ResponseField name="return" type="String">
+  The lookup key or null
+</ResponseField>
+
+### getDataId()
+
+```java
+long getDataId()
+```
+
+Returns the ID of the data row associated with this chip.
+
+<ResponseField name="return" type="long">
+  The data ID
+</ResponseField>
+
+### getEntry()
+
+```java
+RecipientEntry getEntry()
+```
+
+Returns the associated RecipientEntry.
+
+<ResponseField name="return" type="RecipientEntry">
+  The recipient entry for this chip
+</ResponseField>
+
+### setOriginalText()
+
+```java
+void setOriginalText(String text)
+```
+
+Sets the text in the EditTextView originally associated with this chip before any reverse lookups.
+
+<ParamField path="text" type="String" required>
+  The original text
+</ParamField>
+
+### getOriginalText()
+
+```java
+CharSequence getOriginalText()
+```
+
+Returns the text in the EditTextView originally associated with this chip before any reverse lookups.
+
+<ResponseField name="return" type="CharSequence">
+  The original text
+</ResponseField>
+
+## Implementations
+
+The Android Chips library provides two main implementations:
+
+### VisibleRecipientChip
+
+A visible chip that renders with a background, text, and optional avatar icon.
+
+- Used when chips are displayed normally in the RecipientEditTextView
+- Renders with custom drawables for background and selected state
+- Shows contact photos when available
+- Can display delete icon when selected
+
+### InvisibleRecipientChip
+
+A chip that doesn't render visually but maintains recipient data.
+
+- Used internally when chips are hidden (e.g., when "more" chip is shown)
+- Maintains all recipient information without visual representation
+- Has zero bounds (0,0,0,0)
+
+## Usage with RecipientEditTextView
+
+### Getting Chips from the View
+
+```java
+RecipientEditTextView recipientEdit = findViewById(R.id.recipient_edit_text);
+
+// Get all chips
+DrawableRecipientChip[] chips = recipientEdit.getRecipients();
+
+// Get sorted chips
+DrawableRecipientChip[] sortedChips = recipientEdit.getSortedRecipients();
+
+// Process chips
+for (DrawableRecipientChip chip : chips) {
+    String display = chip.getDisplay().toString();
+    String value = chip.getValue().toString();
+    boolean selected = chip.isSelected();
+    
+    Log.d("Chip", display + " <" + value + "> selected: " + selected);
+}
+```
+
+### Working with Chip Data
+
+```java
+DrawableRecipientChip chip = getChip();
+
+// Get recipient information
+RecipientEntry entry = chip.getEntry();
+String displayName = entry.getDisplayName();
+String destination = entry.getDestination();
+
+// Check chip state
+if (chip.isSelected()) {
+    Log.d("Chip", "Chip is selected");
+}
+
+// Get contact information
+long contactId = chip.getContactId();
+if (contactId != RecipientEntry.INVALID_CONTACT && 
+    contactId != RecipientEntry.GENERATED_CONTACT) {
+    // This is a real contact from the database
+    String lookupKey = chip.getLookupKey();
+    long dataId = chip.getDataId();
+}
+
+// Get visual bounds
+Rect bounds = chip.getBounds();
+int width = bounds.width();
+int height = bounds.height();
+```
+
+### Custom Drawing
+
+```java
+// Example of custom chip rendering (typically done internally)
+public void drawChipOnCanvas(DrawableRecipientChip chip, Canvas canvas) {
+    // The chip handles its own drawing
+    chip.draw(canvas);
+    
+    // Or get bounds for custom rendering
+    Rect bounds = chip.getBounds();
+    // ... custom drawing logic
+}
+```
+
+### Managing Chip Selection
+
+```java
+DrawableRecipientChip chip = getChip();
+
+// Select a chip
+chip.setSelected(true);
+
+// Deselect a chip
+chip.setSelected(false);
+
+// Toggle selection
+chip.setSelected(!chip.isSelected());
+
+// Check if any chips are selected
+DrawableRecipientChip[] chips = recipientEdit.getRecipients();
+boolean hasSelection = false;
+for (DrawableRecipientChip c : chips) {
+    if (c.isSelected()) {
+        hasSelection = true;
+        break;
+    }
+}
+```
+
+### Working with Original Text
+
+```java
+DrawableRecipientChip chip = getChip();
+
+// Get original text (before contact lookup)
+CharSequence originalText = chip.getOriginalText();
+
+// Set original text (typically done by RecipientEditTextView)
+chip.setOriginalText("john@example.com, ");
+```
+
+## Common Patterns
+
+### Extracting All Email Addresses
+
+```java
+public List<String> getAllEmailAddresses(RecipientEditTextView view) {
+    List<String> emails = new ArrayList<>();
+    DrawableRecipientChip[] chips = view.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        String email = chip.getEntry().getDestination();
+        if (email != null && !email.isEmpty()) {
+            emails.add(email);
+        }
+    }
+    
+    return emails;
+}
+```
+
+### Finding Chips by Contact ID
+
+```java
+public DrawableRecipientChip findChipByContactId(
+    RecipientEditTextView view,
+    long contactId
+) {
+    DrawableRecipientChip[] chips = view.getRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        if (chip.getContactId() == contactId) {
+            return chip;
+        }
+    }
+    
+    return null;
+}
+```
+
+### Validating All Chips
+
+```java
+public boolean areAllChipsValid(RecipientEditTextView view) {
+    DrawableRecipientChip[] chips = view.getRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        if (!chip.getEntry().isValid()) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+```
+
+## See Also
+
+- [RecipientEditTextView](/api/recipient-edit-text-view) - View that displays chips
+- [RecipientEntry](/api/recipient-entry) - Data model for chips
+- [BaseRecipientAdapter](/api/base-recipient-adapter) - Adapter for recipient suggestions

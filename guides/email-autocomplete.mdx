@@ -1,0 +1,117 @@
+---
+title: Email Autocomplete Setup
+description: Learn how to set up email autocomplete with the Android Chips library to query and display email contacts
+---
+
+This guide shows you how to set up email autocomplete functionality using the Android Chips library. Email autocomplete allows users to easily select email contacts from their device's contact list.
+
+## Overview
+
+The email autocomplete setup uses:
+- `RecipientEditTextView` - The main text input widget
+- `Rfc822Tokenizer` - Tokenizer for parsing RFC 822-compliant email addresses
+- `BaseRecipientAdapter` - Adapter that queries and displays email contacts
+
+<Steps>
+
+### Add RecipientEditTextView to Your Layout
+
+First, add the `RecipientEditTextView` widget to your XML layout:
+
+```xml
+<com.android.ex.chips.RecipientEditTextView
+    android:id="@+id/email_retv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Email addresses"
+    android:minHeight="58dp" />
+```
+
+### Set Up the Tokenizer
+
+In your Activity or Fragment, get a reference to the view and set the `Rfc822Tokenizer`:
+
+```java
+final RecipientEditTextView emailRetv =
+        (RecipientEditTextView) findViewById(R.id.email_retv);
+emailRetv.setTokenizer(new Rfc822Tokenizer());
+```
+
+<Note>
+The `Rfc822Tokenizer` is designed specifically for email addresses and follows the RFC 822 email format specification. This ensures proper parsing of email addresses with display names like "John Doe &lt;john@example.com&gt;".
+</Note>
+
+### Create and Set the Adapter
+
+Create a `BaseRecipientAdapter` and attach it to the view:
+
+```java
+emailRetv.setAdapter(new BaseRecipientAdapter(this));
+```
+
+The `BaseRecipientAdapter` constructor with a single `Context` parameter defaults to `QUERY_TYPE_EMAIL`, which queries email contacts from the device.
+
+### Complete Setup Example
+
+Here's the complete setup code:
+
+```java
+// creates an autocomplete for email contacts
+final RecipientEditTextView emailRetv =
+        (RecipientEditTextView) findViewById(R.id.email_retv);
+emailRetv.setTokenizer(new Rfc822Tokenizer());
+emailRetv.setAdapter(new BaseRecipientAdapter(this));
+```
+
+</Steps>
+
+## How Email Querying Works
+
+When you use `BaseRecipientAdapter` with the default constructor:
+
+1. **Query Type**: Defaults to `QUERY_TYPE_EMAIL` (value: `0`)
+2. **Data Source**: Queries `ContactsContract.CommonDataKinds.Email` from the Android Contacts Provider
+3. **Results**: Returns contacts with email addresses that match the user's input
+4. **Display**: Shows contact name, email address, and photo (if available)
+
+<Info>
+The adapter automatically queries the device's contact database as the user types, with built-in caching and performance optimizations.
+</Info>
+
+## Permissions Required
+
+Make sure to request the `READ_CONTACTS` permission:
+
+```xml
+<uses-permission android:name="android.permission.READ_CONTACTS" />
+```
+
+And request it at runtime for Android 6.0+:
+
+```java
+if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+        != PackageManager.PERMISSION_GRANTED) {
+    ActivityCompat.requestPermissions(this,
+            new String[]{Manifest.permission.READ_CONTACTS}, 0);
+}
+```
+
+## Advanced Options
+
+You can customize the adapter behavior:
+
+```java
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(this);
+// Explicitly set query type to email
+adapter = new BaseRecipientAdapter(BaseRecipientAdapter.QUERY_TYPE_EMAIL, this);
+```
+
+<Tip>
+For phone number autocomplete instead of email, see the [Phone Autocomplete Setup](/guides/phone-autocomplete) guide.
+</Tip>
+
+## Next Steps
+
+- [Customize chip appearance](/guides/customization)
+- [Retrieve selected chips](/guides/retrieving-chips)
+- [Set up phone autocomplete](/guides/phone-autocomplete)

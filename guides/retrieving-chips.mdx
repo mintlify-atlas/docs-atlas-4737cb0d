@@ -1,0 +1,323 @@
+---
+title: Retrieving Selected Chips
+description: Learn how to retrieve and work with selected chips to access contact information programmatically
+---
+
+This guide shows you how to retrieve selected chips from a `RecipientEditTextView` and access the contact information they contain.
+
+## Overview
+
+The Android Chips library provides methods to retrieve chips that users have selected. Each chip contains a `RecipientEntry` with detailed contact information including name, destination (email or phone), contact ID, and photo data.
+
+## Getting All Selected Chips
+
+### Using getSortedRecipients()
+
+The primary method for retrieving chips is `getSortedRecipients()`, which returns an array of all selected chips:
+
+```java
+DrawableRecipientChip[] chips = phoneRetv.getSortedRecipients();
+```
+
+<Info>
+The `getSortedRecipients()` method returns chips in the order they appear in the text view, from left to right (or right to left in RTL locales).
+</Info>
+
+## Understanding DrawableRecipientChip
+
+Each `DrawableRecipientChip` object represents a single selected contact chip. The chip contains:
+
+- **RecipientEntry** - Complete contact information
+- **Display text** - The text shown in the chip
+- **Value** - The actual email or phone number
+- **Contact ID** - The contact's ID in the Contacts Provider
+- **Selection state** - Whether the chip is currently selected
+
+### DrawableRecipientChip Interface
+
+The `DrawableRecipientChip` interface provides these key methods:
+
+```java
+public interface DrawableRecipientChip {
+    // Get the visual bounds of the chip
+    Rect getBounds();
+    
+    // Draw the chip on a canvas
+    void draw(Canvas canvas);
+    
+    // Get the associated RecipientEntry
+    RecipientEntry getEntry();
+    
+    // Get the display text
+    CharSequence getDisplay();
+    
+    // Get the actual value (email/phone)
+    CharSequence getValue();
+    
+    // Get the contact ID
+    long getContactId();
+    
+    // Get the directory ID
+    Long getDirectoryId();
+    
+    // Get the lookup key
+    String getLookupKey();
+    
+    // Get the data ID
+    long getDataId();
+    
+    // Selection state
+    boolean isSelected();
+    void setSelected(boolean selected);
+    
+    // Original text methods
+    CharSequence getOriginalText();
+    void setOriginalText(String text);
+}
+```
+
+## Accessing Chip Data
+
+### Basic Example
+
+Here's a simple example of retrieving and iterating through chips:
+
+```java
+DrawableRecipientChip[] chips = phoneRetv.getSortedRecipients();
+for (DrawableRecipientChip chip : chips) {
+    RecipientEntry entry = chip.getEntry();
+    String displayName = entry.getDisplayName();
+    String destination = entry.getDestination();
+    
+    Log.d("Chip", displayName + " " + destination);
+}
+```
+
+### Complete Example from Sample App
+
+This example from the sample app retrieves chips after a 5-second delay:
+
+```java
+final RecipientEditTextView phoneRetv =
+        (RecipientEditTextView) findViewById(R.id.phone_retv);
+phoneRetv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+BaseRecipientAdapter adapter = new BaseRecipientAdapter(BaseRecipientAdapter.QUERY_TYPE_PHONE, this);
+adapter.setShowMobileOnly(true);
+phoneRetv.setAdapter(adapter);
+
+new Handler().postDelayed(new Runnable() {
+    @Override
+    public void run() {
+        DrawableRecipientChip[] chips = phoneRetv.getSortedRecipients();
+        for (DrawableRecipientChip chip : chips) {
+            Log.v("DrawableChip", chip.getEntry().getDisplayName() + " " + chip.getEntry().getDestination());
+        }
+    }
+}, 5000);
+```
+
+## Working with RecipientEntry
+
+The `RecipientEntry` object contains detailed contact information:
+
+### Available Methods
+
+```java
+RecipientEntry entry = chip.getEntry();
+
+// Get display name
+String displayName = entry.getDisplayName();
+
+// Get destination (email or phone number)
+String destination = entry.getDestination();
+
+// Get contact ID
+long contactId = entry.getContactId();
+
+// Check if entry is valid
+boolean isValid = entry.isValid();
+
+// Get destination type (e.g., TYPE_HOME, TYPE_MOBILE)
+int destinationType = entry.getDestinationType();
+
+// Get destination label for custom types
+String destinationLabel = entry.getDestinationLabel();
+
+// Get photo thumbnail URI
+Uri photoUri = entry.getPhotoThumbnailUri();
+
+// Get photo bytes if loaded
+byte[] photoBytes = entry.getPhotoBytes();
+
+// Get lookup key
+String lookupKey = entry.getLookupKey();
+```
+
+### Checking if Entry is Valid
+
+You can check if a chip represents a valid contact:
+
+```java
+RecipientEntry entry = chip.getEntry();
+if (entry.isValid()) {
+    // Valid contact from device
+    String contactName = entry.getDisplayName();
+} else {
+    // Manually entered or invalid entry
+    String enteredText = entry.getDestination();
+}
+```
+
+<Note>
+Invalid entries typically occur when users manually type an email or phone number that doesn't match any contacts in the device.
+</Note>
+
+## Practical Use Cases
+
+### Extracting Email Addresses for Sending
+
+```java
+public List<String> getEmailAddresses(RecipientEditTextView emailView) {
+    List<String> emails = new ArrayList<>();
+    DrawableRecipientChip[] chips = emailView.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        RecipientEntry entry = chip.getEntry();
+        emails.add(entry.getDestination());
+    }
+    
+    return emails;
+}
+```
+
+### Extracting Phone Numbers for SMS
+
+```java
+public List<String> getPhoneNumbers(RecipientEditTextView phoneView) {
+    List<String> phoneNumbers = new ArrayList<>();
+    DrawableRecipientChip[] chips = phoneView.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        RecipientEntry entry = chip.getEntry();
+        phoneNumbers.add(entry.getDestination());
+    }
+    
+    return phoneNumbers;
+}
+```
+
+### Getting Contact Information with Names
+
+```java
+public Map<String, String> getContactsWithNames(RecipientEditTextView view) {
+    Map<String, String> contacts = new LinkedHashMap<>();
+    DrawableRecipientChip[] chips = view.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        RecipientEntry entry = chip.getEntry();
+        String name = entry.getDisplayName();
+        String destination = entry.getDestination();
+        contacts.put(name, destination);
+    }
+    
+    return contacts;
+}
+```
+
+### Validating Recipients
+
+```java
+public boolean hasInvalidRecipients(RecipientEditTextView view) {
+    DrawableRecipientChip[] chips = view.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        RecipientEntry entry = chip.getEntry();
+        if (!entry.isValid()) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+```
+
+### Getting Only Valid Contact IDs
+
+```java
+public List<Long> getValidContactIds(RecipientEditTextView view) {
+    List<Long> contactIds = new ArrayList<>();
+    DrawableRecipientChip[] chips = view.getSortedRecipients();
+    
+    for (DrawableRecipientChip chip : chips) {
+        RecipientEntry entry = chip.getEntry();
+        long contactId = entry.getContactId();
+        
+        // Check if this is a real contact (not manually entered)
+        if (!RecipientEntry.isCreatedRecipient(contactId) && entry.isValid()) {
+            contactIds.add(contactId);
+        }
+    }
+    
+    return contactIds;
+}
+```
+
+<Info>
+Use `RecipientEntry.isCreatedRecipient(contactId)` to check if an entry was manually typed or generated rather than selected from contacts.
+</Info>
+
+## Handling Photo Data
+
+You can access contact photos from chips:
+
+```java
+DrawableRecipientChip[] chips = emailRetv.getSortedRecipients();
+for (DrawableRecipientChip chip : chips) {
+    RecipientEntry entry = chip.getEntry();
+    
+    // Get photo thumbnail URI
+    Uri photoUri = entry.getPhotoThumbnailUri();
+    if (photoUri != null) {
+        // Load photo using URI
+        // e.g., with Glide, Picasso, or ContentResolver
+    }
+    
+    // Or get photo bytes if already loaded
+    byte[] photoBytes = entry.getPhotoBytes();
+    if (photoBytes != null && photoBytes.length > 0) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length);
+        // Use bitmap
+    }
+}
+```
+
+## Real-Time Monitoring
+
+You can set up a listener to monitor chip changes in real-time:
+
+```java
+emailRetv.addTextChangedListener(new TextWatcher() {
+    @Override
+    public void afterTextChanged(Editable s) {
+        DrawableRecipientChip[] chips = emailRetv.getSortedRecipients();
+        // Process chips whenever text changes
+        updateRecipientCount(chips.length);
+    }
+    
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+});
+```
+
+<Tip>
+For better performance with real-time monitoring, consider debouncing the text change events to avoid excessive processing.
+</Tip>
+
+## Next Steps
+
+- [Customize chip appearance](/guides/customization)
+- [Email autocomplete setup](/guides/email-autocomplete)
+- [Phone autocomplete setup](/guides/phone-autocomplete)

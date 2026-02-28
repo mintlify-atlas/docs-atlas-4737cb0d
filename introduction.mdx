@@ -1,0 +1,85 @@
+---
+title: Introduction
+description: A Material Design chips library for Android that transforms contacts into interactive chips with autocomplete functionality
+---
+
+# Introduction to Android Chips
+
+Android Chips is a simple, lightweight library that brings Material Design contact chips to your Android applications. Based on Google's internal chips library, it provides a polished autocomplete text view that displays selected contacts as interactive, removable chips.
+
+## What are chips?
+
+Chips are compact elements that represent an input, attribute, or action. This library implements contact chips following the [Material Design specification](http://www.google.com/design/spec/components/chips-tokens.html#chips-tokens-contact-chips), allowing users to select and manage multiple recipients in a visually appealing way.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Email and phone support" icon="address-book">
+    Built-in adapters for both email addresses and phone numbers with contact autocomplete
+  </Card>
+  
+  <Card title="Material Design" icon="palette">
+    Visual design following Material Design guidelines for chips and tokens
+  </Card>
+  
+  <Card title="Contact integration" icon="users">
+    Seamless integration with Android's contacts provider for autocomplete suggestions
+  </Card>
+  
+  <Card title="Customizable" icon="sliders">
+    Flexible API allowing customization of chip appearance and behavior
+  </Card>
+</CardGroup>
+
+## Quick preview
+
+Here's how simple it is to add email chips to your app:
+
+```java
+final RecipientEditTextView emailRetv = 
+        (RecipientEditTextView) findViewById(R.id.email_retv);
+emailRetv.setTokenizer(new Rfc822Tokenizer());
+emailRetv.setAdapter(new BaseRecipientAdapter(this));
+```
+
+Once configured, users can type to search contacts, select recipients, and see them displayed as Material Design chips. Each chip shows the contact's name and can be tapped to view alternatives or removed with a simple gesture.
+
+## What you'll build
+
+With Android Chips, you can create messaging interfaces, email clients, or any app that needs multi-recipient selection. The library handles:
+
+- Contact searching and filtering
+- Chip rendering with contact photos
+- Selection and removal interactions
+- Alternative contact methods (multiple emails/numbers per contact)
+- Mobile-only filtering for phone numbers
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Add the library to your project with Gradle
+  </Card>
+  
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Build your first chips implementation in minutes
+  </Card>
+  
+  <Card title="Email guide" icon="envelope" href="/guides/email-autocomplete">
+    Learn to implement email recipient selection
+  </Card>
+  
+  <Card title="Phone guide" icon="phone" href="/guides/phone-autocomplete">
+    Add phone number chips to your app
+  </Card>
+</CardGroup>
+
+## Requirements
+
+- Android API 11 (Honeycomb) or higher
+- Android Support Library v4
+- READ_CONTACTS permission for autocomplete functionality
+
+<Info>
+  The library is production-ready and has been used in numerous Android applications for contact selection interfaces.
+</Info>
