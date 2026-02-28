@@ -1,0 +1,65 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "Android Chips",
+  "projectDescription": "Material Design chips library for AutoCompleteTextView on Android",
+  "theme": "palm",
+  "primaryColor": "#4CAF50",
+  "lightColor": "#81C784",
+  "darkColor": "#388E3C",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Components",
+        "pages": [
+          "components/recipient-edit-text-view",
+          "components/base-recipient-adapter",
+          "components/recipient-chips"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/email-autocomplete",
+          "guides/phone-autocomplete",
+          "guides/customization",
+          "guides/retrieving-chips"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/recipient-edit-text-view",
+          "api/base-recipient-adapter",
+          "api/recipient-entry",
+          "api/drawable-recipient-chip"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Material Design chip components for contact selection",
+    "Email and phone number autocomplete support",
+    "Contact photo display and chip visualization",
+    "Customizable chip appearance and behavior",
+    "Android Contacts integration"
+  ],
+  "publicApiSurface": [
+    "RecipientEditTextView",
+    "BaseRecipientAdapter",
+    "RecipientEntry",
+    "DrawableRecipientChip",
+    "VisibleRecipientChip",
+    "InvisibleRecipientChip",
+    "RecipientAlternatesAdapter",
+    "DropdownChipLayouter",
+    "BaseRecipientChip"
+  ]
+}
